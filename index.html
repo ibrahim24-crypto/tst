@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compteur de Clics avec Téléchargement</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f0f8ff;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    h1 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Compteur de Clics</h1>
+  <p>Nombre de clics : <span id="click-count">0</span></p>
+  <button id="click-button">Cliquez-moi</button>
+  <br><br>
+  <button id="download-button">Télécharger le fichier</button>
+
+  <script>
+    let clickCount = 0;
+
+    // Fonction pour mettre à jour l'affichage du nombre de clics
+    function updateClickCount() {
+      document.getElementById('click-count').textContent = clickCount;
+    }
+
+    // Fonction pour gérer un clic sur le bouton
+    function handleButtonClick() {
+      clickCount += 1; // Incrémenter le compteur de clics
+      updateClickCount(); // Mettre à jour l'affichage du nombre de clics
+    }
+
+    // Fonction pour créer un fichier .txt et le télécharger
+    function downloadFile() {
+      const fileContent = `Nombre de clics : ${clickCount}`;
+      const blob = new Blob([fileContent], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'clicks.txt';
+      link.click(); // Lancer le téléchargement
+    }
+
+    // Ajouter un événement au bouton pour compter les clics
+    document.getElementById('click-button').addEventListener('click', handleButtonClick);
+
+    // Ajouter un événement au bouton pour télécharger le fichier
+    document.getElementById('download-button').addEventListener('click', downloadFile);
+  </script>
+
+</body>
+</html>
