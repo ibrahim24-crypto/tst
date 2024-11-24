@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afficher les clics</title>
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJN_7BSvCXwY12QFwovfBV67rImo4c1oA",
+      authDomain: "himo-app-store.firebaseapp.com",
+      databaseURL: "https://himo-app-store-default-rtdb.firebaseio.com/",
+      projectId: "himo-app-store",
+      storageBucket: "himo-app-store.appspot.com",
+      messagingSenderId: "104016080434",
+      appId: "1:104016080434:web:18be88b6c58b247bb6962b",
+      measurementId: "G-PTGJHQPFCM"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const countDisplay = document.getElementById("count-display");
+
+      // Retrieve current count
+      const countRef = ref(db, "clicks/count");
+      get(countRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          countDisplay.textContent = snapshot.val();
+        } else {
+          countDisplay.textContent = "0";
+        }
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f8f9fa;
+    }
+    h1 {
+      color: #333;
+    }
+    p {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Afficher les clics</h1>
+  <p>Nombre total de clics : <span id="count-display">0</span></p>
+</body>
+</html>
