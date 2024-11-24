@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compteur de clics</title>
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, set, get, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJN_7BSvCXwY12QFwovfBV67rImo4c1oA",
+      authDomain: "himo-app-store.firebaseapp.com",
+      databaseURL: "https://himo-app-store-default-rtdb.firebaseio.com/",
+      projectId: "himo-app-store",
+      storageBucket: "himo-app-store.appspot.com",
+      messagingSenderId: "104016080434",
+      appId: "1:104016080434:web:18be88b6c58b247bb6962b",
+      measurementId: "G-PTGJHQPFCM"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Counter Logic
+    document.addEventListener("DOMContentLoaded", () => {
+      const button = document.getElementById("click-button");
+      const countDisplay = document.getElementById("count-display");
+
+      // Retrieve current count
+      const countRef = ref(db, "clicks/count");
+      get(countRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          countDisplay.textContent = snapshot.val();
+        }
+      });
+
+      // Increment count on click
+      button.addEventListener("click", () => {
+        set(countRef, increment(1)).then(() => {
+          get(countRef).then((snapshot) => {
+            if (snapshot.exists()) {
+              countDisplay.textContent = snapshot.val();
+            }
+          });
+        });
+      });
+    });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f8ff;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    h1 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Compteur de clics</h1>
+  <p>Nombre de clics : <span id="count-display">0</span></p>
+  <button id="click-button">Cliquez-moi</button>
+</body>
+</html>
