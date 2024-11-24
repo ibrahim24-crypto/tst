@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compteur de Clics avec Téléchargement</title>
+  <title>Compteur de Clics avec GitHub</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -31,40 +31,63 @@
 <body>
 
   <h1>Compteur de Clics</h1>
-  <p>Nombre de clics : <span id="click-count">0</span></p>
+  <p>Nombre de clics : <span id="count-display">0</span></p>
   <button id="click-button">Cliquez-moi</button>
-  <br><br>
-  <button id="download-button">Télécharger le fichier</button>
 
   <script>
-    let clickCount = 0;
+    const apiUrl = "https://api.github.com/repos/ibrahim24-crypto/tst/contents/clicks.json";
+    const token = "VOTRE_TOKEN_GITHUB"; // Remplacez par votre token GitHub
 
-    // Fonction pour mettre à jour l'affichage du nombre de clics
+    // Fonction pour récupérer les données du fichier clicks.json
+    function getClickCount() {
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const content = atob(data.content); // Décoder le contenu Base64
+          const jsonData = JSON.parse(content);
+          document.getElementById("count-display").textContent = jsonData.clics;
+        })
+        .catch(error => console.error("Erreur lors de la récupération des données :", error));
+    }
+
+    // Fonction pour mettre à jour le compteur
     function updateClickCount() {
-      document.getElementById('click-count').textContent = clickCount;
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const content = atob(data.content); // Décoder le contenu Base64
+          const jsonData = JSON.parse(content);
+          jsonData.clics += 1; // Incrémenter le nombre de clics
+
+          // Mettre à jour le fichier sur GitHub
+          const updatedContent = btoa(JSON.stringify(jsonData)); // Encoder le contenu en base64
+
+          fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: 'Incrémenter le compteur de clics',
+              content: updatedContent,
+              sha: data.sha // Nécessaire pour éviter de créer un conflit de version
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log("Fichier mis à jour avec succès !");
+            getClickCount(); // Rafraîchir l'affichage
+          })
+          .catch(error => console.error("Erreur lors de la mise à jour des données :", error));
+        });
     }
 
-    // Fonction pour gérer un clic sur le bouton
-    function handleButtonClick() {
-      clickCount += 1; // Incrémenter le compteur de clics
-      updateClickCount(); // Mettre à jour l'affichage du nombre de clics
-    }
+    // Ajouter un événement de clic au bouton
+    document.getElementById("click-button").addEventListener("click", updateClickCount);
 
-    // Fonction pour créer un fichier .txt et le télécharger
-    function downloadFile() {
-      const fileContent = `Nombre de clics : ${clickCount}`;
-      const blob = new Blob([fileContent], { type: 'text/plain' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'clicks.txt';
-      link.click(); // Lancer le téléchargement
-    }
-
-    // Ajouter un événement au bouton pour compter les clics
-    document.getElementById('click-button').addEventListener('click', handleButtonClick);
-
-    // Ajouter un événement au bouton pour télécharger le fichier
-    document.getElementById('download-button').addEventListener('click', downloadFile);
+    // Initialiser l'affichage du nombre de clics
+    getClickCount();
   </script>
 
 </body>
