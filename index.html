@@ -123,10 +123,10 @@
 
     <div id="side-menu" class="menu">
         <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
-        <a href="a-propos.html">À propos</a>
-        <a href="confidentialite.html">Confidentialité</a>
-        <a href="mes-applis.html">Mes applis</a>
-        <a href="help.html">Aide</a>
+        <a href="a-propos.html" onclick="trackClick('À propos')">À propos</a>
+        <a href="confidentialite.html" onclick="trackClick('Confidentialité')">Confidentialité</a>
+        <a href="mes-applis.html" onclick="trackClick('Mes applis')">Mes applis</a>
+        <a href="help.html" onclick="trackClick('Aide')">Aide</a>
         <!-- Bouton Admin ajouté ici -->
         <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
     </div>
@@ -165,31 +165,77 @@
         "netflix": "netflix.html"
     };
 
-    function isSimilar(input, appName) {
-        let missingChars = 0;
-        let j = 0;
+    let token = 'VOTRE_TOKEN';  // Remplacez avec votre token GitHub
+    let repoOwner = 'votreNomGitHub'; // Remplacez avec votre nom GitHub
+    let repoName = 'votreDepot'; // Remplacez avec votre nom de dépôt
+    let filePath = 'data.json'; // Le chemin vers votre fichier JSON dans le dépôt
 
-        for (let i = 0; i < appName.length; i++) {
-            if (j < input.length && appName[i].toLowerCase() === input[j]) {
-                j++;
-            } else {
-                missingChars++;
+    // Fonction pour lire le fichier JSON depuis GitHub
+    async function readDataFromGitHub() {
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3.raw'
             }
-            if (missingChars > 1) return false;
+        });
+
+        if (!response.ok) {
+            console.error("Erreur de récupération du fichier", response.status);
+            return;
         }
-        return true;
+
+        const data = await response.json();
+        return data;
     }
 
-    function openMenu() {
-        document.getElementById("side-menu").style.width = "250px";
-        document.querySelector(".menu-btn").style.display = "none";
+    // Fonction pour écrire dans le fichier JSON sur GitHub
+    async function writeDataToGitHub(newData) {
+        const url = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${filePath}`;
+        const fileData = await readDataFromGitHub();
+        const sha = fileData.sha;
+
+        const updatedContent = {
+            message: "Mise à jour des données",
+            content: btoa(JSON.stringify(newData)), // Convertir en base64
+            sha: sha
+        };
+
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            },
+            body: JSON.stringify(updatedContent)
+        });
+
+        if (response.ok) {
+            console.log("Données mises à jour avec succès !");
+        } else {
+            console.error("Erreur de mise à jour du fichier", response.status);
+        }
     }
 
-    function closeMenu() {
-        document.getElementById("side-menu").style.width = "0";
-        document.querySelector(".menu-btn").style.display = "block";
+    // Fonction pour suivre les clics sur les boutons
+    async function trackClick(buttonName) {
+        const data = await readDataFromGitHub();
+        
+        // Mise à jour du nombre de clics
+        if (!data.buttonClicks) data.buttonClicks = 0;
+        data.buttonClicks++;
+
+        // Mise à jour des données
+        if (!data.clickedButtons) data.clickedButtons = {};
+        if (!data.clickedButtons[buttonName]) data.clickedButtons[buttonName] = 0;
+        data.clickedButtons[buttonName]++;
+
+        // Écrire les données mises à jour
+        await writeDataToGitHub(data);
     }
 
+    // Fonction de recherche d'applications
     function searchApp() {
         const input = document.getElementById("search-input").value.toLowerCase();
         let found = false;
@@ -215,6 +261,8 @@
                 alert("Application non trouvée.");
             }
         }
+
+        trackClick("Rechercher");
     }
 
     // Fonction de vérification du code d'accès admin
@@ -225,6 +273,8 @@
         } else {
             alert("Code incorrect.");
         }
+
+        trackClick("Admin");
     }
 </script>
 
