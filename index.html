@@ -117,7 +117,7 @@
 <body>
 
     <div class="header">
-        <h1>Bienvenue !</h1>
+        <h1>Bienvenue ! dans himo app store</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
     </div>
 
@@ -127,7 +127,6 @@
         <a href="confidentialite.html" onclick="trackClick('Confidentialité')">Confidentialité</a>
         <a href="mes-applis.html" onclick="trackClick('Mes applis')">Mes applis</a>
         <a href="help.html" onclick="trackClick('Aide')">Aide</a>
-        <!-- Bouton Admin ajouté ici -->
         <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
     </div>
 
@@ -165,7 +164,7 @@
         "netflix": "netflix.html"
     };
 
-    let token = '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';  // Remplacez avec votre token GitHub
+    let token = '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';  // Remplacez avec votre token GitHub
     let repoOwner = 'ibrahim24-crypto'; // Nom d'utilisateur GitHub
     let repoName = 'tst'; // Nom du dépôt
     let filePath = 'data.json'; // Le chemin vers votre fichier JSON dans le dépôt
@@ -235,6 +234,16 @@
         await writeDataToGitHub(data);
     }
 
+    // Fonction pour ouvrir le menu
+    function openMenu() {
+        document.getElementById("side-menu").style.width = "250px";
+    }
+
+    // Fonction pour fermer le menu
+    function closeMenu() {
+        document.getElementById("side-menu").style.width = "0";
+    }
+
     // Fonction de recherche d'applications
     function searchApp() {
         const input = document.getElementById("search-input").value.toLowerCase();
@@ -250,9 +259,6 @@
                 similarApps.push(app);
             }
         }
-
-        // Ouvrir la chaîne YouTube dans un nouvel onglet
-        window.open('https://youtube.com/@ibrahimezzine2010?si=WMT0_L5dvJnlOVBG', '_blank');
 
         if (!found) {
             if (similarApps.length > 0) {
@@ -275,6 +281,12 @@
         }
 
         trackClick("Admin");
+    }
+
+    // Fonction pour déterminer la similarité des mots
+    function isSimilar(input, app) {
+        // Simple méthode pour vérifier si deux chaînes sont similaires
+        return app.includes(input) || input.includes(app);
     }
 </script>
 
