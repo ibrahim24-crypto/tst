@@ -111,13 +111,10 @@
     </style>
 </head>
 
-<script defer data-domain="ibrahim24-crypto.github.io/has" src="https://plausible.io/js/script.js"></script>
-<!-- Google tag (gtag.js) --> <script async src="https://www.googletagmanager.com/gtag/js?id=G-WPHB7VFZM0"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-WPHB7VFZM0'); </script>
-
 <body>
 
     <div class="header">
-        <h1>Bienvenue ! dans himo app store</h1>
+        <h1>tst</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
     </div>
 
@@ -127,7 +124,6 @@
         <a href="confidentialite.html" onclick="trackClick('Confidentialité')">Confidentialité</a>
         <a href="mes-applis.html" onclick="trackClick('Mes applis')">Mes applis</a>
         <a href="help.html" onclick="trackClick('Aide')">Aide</a>
-        <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
     </div>
 
     <div class="search-container">
@@ -268,26 +264,22 @@
             }
         }
 
-        trackClick("Rechercher");
+        trackClick("Recherche");
     }
 
-    // Fonction de vérification du code d'accès admin
-    function verifyAdmin() {
-        const code = prompt("Entrez le code d'accès pour Admin :");
-        if (code === "4285") {
-            window.location.href = "admin.html"; // Redirige vers la page admin
-        } else {
-            alert("Code incorrect.");
-        }
-
-        trackClick("Admin");
-    }
-
-    // Fonction pour déterminer la similarité des mots
     function isSimilar(input, app) {
-        // Simple méthode pour vérifier si deux chaînes sont similaires
-        return app.includes(input) || input.includes(app);
+        let score = 0;
+        input = input.toLowerCase();
+        app = app.toLowerCase();
+
+        for (let i = 0; i < input.length; i++) {
+            if (app.includes(input[i])) {
+                score++;
+            }
+        }
+        return score >= 3;
     }
+
 </script>
 
 </body>
