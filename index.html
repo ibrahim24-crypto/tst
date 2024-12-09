@@ -130,12 +130,12 @@
         })
         .then(response => {
             if (response.ok) {
-                console.log('Données enregistrées avec succès.');
+                alert('Données enregistrées avec succès.');
             } else {
-                console.error('Erreur lors de l\'enregistrement des données.');
+                alert('Erreur lors de l\'enregistrement des données.');
             }
         })
-        .catch(error => console.error('Erreur :', error));
+        .catch(error => alert('Erreur : ' + error));
     }
 
     // Fonction pour suivre les clics sur les boutons
@@ -208,8 +208,11 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(newData),
-            });
-            console.log('Nombre de visiteurs mis à jour.');
+            })
+            .then(() => {
+                alert('Nombre de visiteurs mis à jour.');
+            })
+            .catch(error => alert('Erreur lors de l\'incrémentation du nombre de visiteurs : ' + error));
         });
     }
 
@@ -226,8 +229,11 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(newData),
-            });
-            console.log('Revisites mises à jour.');
+            })
+            .then(() => {
+                alert('Revisites mises à jour.');
+            })
+            .catch(error => alert('Erreur lors de l\'incrémentation des revisites : ' + error));
         });
     }
 
