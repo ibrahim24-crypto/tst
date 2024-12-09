@@ -111,14 +111,16 @@
         "netflix": "netflix.html"
     };
 
-    const sheetdbURL = 'https://sheetdb.io/api/v1/4a5t25jroujht';
+    const sheetdbURL = 'https://sheetdb.io/api/v1/4a5t25jroujht'; // API URL
 
     // Fonction pour envoyer des données à SheetDB
-    function logToSheetDB(action, label) {
+    function logToSheetDB(visitor, revisit, contentSearched, buttonClicked) {
         const data = {
-            timestamp: new Date().toISOString(),
-            action: action,
-            label: label
+            visitor: visitor,
+            revisit: revisit,
+            contentSearched: contentSearched,
+            buttonClicked: buttonClicked,
+            timestamp: new Date().toISOString()
         };
 
         fetch(sheetdbURL, {
@@ -140,7 +142,8 @@
 
     // Fonction pour suivre les clics sur les boutons
     function trackClick(buttonName) {
-        logToSheetDB('Click', buttonName);
+        const visitor = localStorage.getItem('hasVisited') ? 'Revisiteur' : 'Visiteur';
+        logToSheetDB(visitor, visitor === 'Visiteur' ? 'Non défini' : 'Revisité', 'Non défini', buttonName);
     }
 
     // Fonction pour rechercher une application
@@ -167,7 +170,7 @@
             }
         }
 
-        logToSheetDB('Search', input);
+        logToSheetDB('Non défini', 'Non défini', input, 'Recherche');
     }
 
     // Fonction de vérification des similarités
@@ -181,7 +184,7 @@
                 score++;
             }
         }
-        return score >= 3; // Si la correspondance est suffisamment élevée, on la considère similaire
+        return score >= 3;
     }
 
     // Fonction pour gérer la visite utilisateur
@@ -189,62 +192,9 @@
         // Vérifier si l'utilisateur a déjà visité la page
         if (!localStorage.getItem('hasVisited')) {
             localStorage.setItem('hasVisited', 'true');
-            incrementVisitorCount();
+            logToSheetDB('Visiteur', 'Non défini', 'Non défini', 'Première visite');
         } else {
-            incrementRevisitCount();
-        }
-    }
-
-    // Fonction pour incrémenter le nombre de visiteurs dans SheetDB
-    function incrementVisitorCount() {
-        fetch(sheetdbURL)
-        .then(response => response.json())
-        .then(data => {
-            const visitorCount = data.length ? data[data.length - 1].visitorCount + 1 : 1;
-            const newData = { visitorCount: visitorCount };
-            fetch(sheetdbURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newData),
-            })
-            .then(() => {
-                alert('Nombre de visiteurs mis à jour.');
-            })
-            .catch(error => alert('Erreur lors de l\'incrémentation du nombre de visiteurs : ' + error));
-        });
-    }
-
-    // Fonction pour incrémenter les revisites
-    function incrementRevisitCount() {
-        fetch(sheetdbURL)
-        .then(response => response.json())
-        .then(data => {
-            const revisitCount = data.length ? data[data.length - 1].revisitCount + 1 : 1;
-            const newData = { revisitCount: revisitCount };
-            fetch(sheetdbURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newData),
-            })
-            .then(() => {
-                alert('Revisites mises à jour.');
-            })
-            .catch(error => alert('Erreur lors de l\'incrémentation des revisites : ' + error));
-        });
-    }
-
-    // Fonction pour accéder à la page Admin avec vérification du code
-    function accessAdmin() {
-        const code = prompt("Entrez le code d'accès Admin :");
-
-        if (code === "24102010") {
-            window.location.href = "admin.html"; // Redirige vers la page Admin
-        } else {
-            alert("Code incorrect !");
+            logToSheetDB('Revisiteur', 'Revisité', 'Non défini', 'Revisite');
         }
     }
 
