@@ -132,7 +132,7 @@
         })
         .then(response => {
             if (response.ok) {
-                alert('Données enregistrées avec succès.');
+                console.log('Données enregistrées avec succès.');
             } else {
                 alert('Erreur lors de l\'enregistrement des données.');
             }
@@ -143,6 +143,7 @@
     // Fonction pour suivre les clics sur les boutons
     function trackClick(buttonName) {
         const visitor = localStorage.getItem('hasVisited') ? 'Revisiteur' : 'Visiteur';
+        localStorage.setItem('hasVisited', 'true');
         logToSheetDB(visitor, visitor === 'Visiteur' ? 'Non défini' : 'Revisité', 'Non défini', buttonName);
     }
 
