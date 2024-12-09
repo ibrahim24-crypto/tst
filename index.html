@@ -59,6 +59,19 @@
             bottom: 0;
             width: 100%;
         }
+        .button-admin {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .button-admin:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
@@ -74,12 +87,15 @@
         <a href="confidentialite.html" onclick="trackClick('Confidentialité')">Confidentialité</a>
         <a href="mes-applis.html" onclick="trackClick('Mes applis')">Mes applis</a>
         <a href="help.html" onclick="trackClick('Aide')">Aide</a>
-        <a href="javascript:void(0)" onclick="accessAdmin()">Admin</a> <!-- Bouton Admin -->
     </div>
 
     <div class="search-container">
         <input type="text" id="search-input" placeholder="Recherchez une application..." oninput="filterApps()">
         <button onclick="searchApp()">Rechercher</button>
+    </div>
+
+    <div class="button-admin">
+        <button onclick="accessAdmin()">Accéder à l'Admin</button>
     </div>
 
     <footer>
@@ -111,43 +127,22 @@
         "netflix": "netflix.html"
     };
 
-    const sheetdbURL = 'https://sheetdb.io/api/v1/4a5t25jroujht'; // API URL
-
-    // Fonction pour envoyer des données à SheetDB
-    function logToSheetDB(visitor, revisit, contentSearched, buttonClicked) {
-        const data = {
-            visitor: visitor,
-            revisit: revisit,
-            contentSearched: contentSearched,
-            buttonClicked: buttonClicked,
-            timestamp: new Date().toISOString()
-        };
-
-        fetch(sheetdbURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-        .then(response => {
-            if (response.ok) {
-                console.log('Données enregistrées avec succès.');
-            } else {
-                alert('Erreur lors de l\'enregistrement des données.');
-            }
-        })
-        .catch(error => alert('Erreur : ' + error));
+    // Fonction pour ouvrir le menu
+    function openMenu() {
+        document.getElementById("side-menu").style.width = "250px";
     }
 
-    // Fonction pour suivre les clics sur les boutons
-    function trackClick(buttonName) {
-        const visitor = localStorage.getItem('hasVisited') ? 'Revisiteur' : 'Visiteur';
-        localStorage.setItem('hasVisited', 'true');
-        logToSheetDB(visitor, visitor === 'Visiteur' ? 'Non défini' : 'Revisité', 'Non défini', buttonName);
+    // Fonction pour fermer le menu
+    function closeMenu() {
+        document.getElementById("side-menu").style.width = "0";
     }
 
-    // Fonction pour rechercher une application
+    // Fonction pour accéder à la page Admin
+    function accessAdmin() {
+        window.location.href = 'admin.html';
+    }
+
+    // Fonction de recherche d'application
     function searchApp() {
         const input = document.getElementById("search-input").value.toLowerCase();
         let found = false;
@@ -170,11 +165,9 @@
                 alert("Application non trouvée.");
             }
         }
-
-        logToSheetDB('Non défini', 'Non défini', input, 'Recherche');
     }
 
-    // Fonction de vérification des similarités
+    // Fonction pour vérifier si deux mots sont similaires
     function isSimilar(input, app) {
         let score = 0;
         input = input.toLowerCase();
@@ -186,30 +179,6 @@
             }
         }
         return score >= 3;
-    }
-
-    // Fonction pour gérer la visite utilisateur
-    function handleVisitor() {
-        // Vérifier si l'utilisateur a déjà visité la page
-        if (!localStorage.getItem('hasVisited')) {
-            localStorage.setItem('hasVisited', 'true');
-            logToSheetDB('Visiteur', 'Non défini', 'Non défini', 'Première visite');
-        } else {
-            logToSheetDB('Revisiteur', 'Revisité', 'Non défini', 'Revisite');
-        }
-    }
-
-    // Appel de la fonction pour gérer la visite
-    handleVisitor();
-
-    // Fonction pour ouvrir le menu
-    function openMenu() {
-        document.getElementById("side-menu").style.width = "250px";
-    }
-
-    // Fonction pour fermer le menu
-    function closeMenu() {
-        document.getElementById("side-menu").style.width = "0";
     }
 </script>
 
