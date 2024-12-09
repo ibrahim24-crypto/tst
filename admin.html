@@ -12,84 +12,149 @@
             padding: 0;
             background-color: #f4f4f4;
         }
-        .admin-container {
-            text-align: center;
-            padding: 20px;
-        }
-        .stats {
-            margin-top: 20px;
-        }
-        footer {
-            text-align: center;
-            padding: 10px;
+        .header {
             background-color: #333;
             color: white;
-            position: fixed;
-            bottom: 0;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
             width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
 
-<div class="admin-container">
-    <h1>Tableau de bord Admin</h1>
-    <div class="stats">
-        <h3>Statistiques :</h3>
-        <p>Visiteurs : <span id="visitorCount">0</span></p>
-        <p>Revisites : <span id="revisitCount">0</span></p>
+    <div class="header">
+        <h1>Page Admin - Himo App Store</h1>
     </div>
 
-    <button onclick="resetData()">Réinitialiser les données</button>
-</div>
+    <div class="container">
+        <div class="card">
+            <h2>Statistiques des Visites</h2>
+            <p>Nombre total de visiteurs : <span id="visitor-count">Chargement...</span></p>
+            <p>Nombre total de revisites : <span id="revisit-count">Chargement...</span></p>
+            <p>Nombre total de clics sur les boutons : <span id="click-count">Chargement...</span></p>
+            <p>Dernière date de clic : <span id="last-click">Chargement...</span></p>
+        </div>
 
-<footer>
-    <p>&copy; 2024 Himo App Store - Tous droits réservés.</p>
-</footer>
+        <div class="card">
+            <h2>Réinitialiser les données</h2>
+            <input type="text" id="reset-code" class="input-field" placeholder="Entrez le code pour réinitialiser les données">
+            <button onclick="resetData()" class="button">Réinitialiser</button>
+        </div>
 
-<script>
-    const sheetdbURL = 'https://sheetdb.io/api/v1/4a5t25jroujht';
+        <div class="card">
+            <h2>Historique des Actions</h2>
+            <table id="action-table">
+                <thead>
+                    <tr>
+                        <th>Visiteur</th>
+                        <th>Revisiteur</th>
+                        <th>Contenu Cherché</th>
+                        <th>Bouton Cliqué</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les lignes du tableau seront ajoutées ici -->
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    // Fonction pour récupérer les statistiques
-    function fetchStats() {
-        fetch(sheetdbURL)
-        .then(response => response.json())
-        .then(data => {
-            let visitorCount = 0;
-            let revisitCount = 0;
+    <script>
+        const sheetdbURL = 'https://sheetdb.io/api/v1/4a5t25jroujht'; // API URL
 
-            data.forEach(row => {
-                if (row.visitorCount) visitorCount += row.visitorCount;
-                if (row.revisitCount) revisitCount += row.revisitCount;
-            });
+        // Fonction pour récupérer les données et les afficher dans le tableau
+        function fetchData() {
+            fetch(sheetdbURL)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector("#action-table tbody");
+                    tableBody.innerHTML = '';
+                    data.forEach(row => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${row.visitor}</td>
+                            <td>${row.revisit}</td>
+                            <td>${row.contentSearched}</td>
+                            <td>${row.buttonClicked}</td>
+                            <td>${row.timestamp}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
 
-            document.getElementById("visitorCount").textContent = visitorCount;
-            document.getElementById("revisitCount").textContent = revisitCount;
-        })
-        .catch(error => alert('Erreur lors de la récupération des statistiques : ' + error));
-    }
+                    // Afficher les statistiques
+                    document.getElementById("visitor-count").textContent = data.filter(d => d.visitor === 'Visiteur').length;
+                    document.getElementById("revisit-count").textContent = data.filter(d => d.revisit === 'Revisiteur').length;
+                    document.getElementById("click-count").textContent = data.filter(d => d.buttonClicked).length;
+                    document.getElementById("last-click").textContent = data.length ? data[data.length - 1].timestamp : 'Aucune donnée';
+                })
+                .catch(error => {
+                    alert('Erreur lors de la récupération des données.');
+                });
+        }
 
-    // Fonction pour réinitialiser les données
-    function resetData() {
-        const resetData = { visitorCount: 0, revisitCount: 0 };
-        
-        fetch(sheetdbURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(resetData),
-        })
-        .then(() => {
-            alert('Les données ont été réinitialisées.');
-            fetchStats();  // Rafraîchir les statistiques
-        })
-        .catch(error => alert('Erreur lors de la réinitialisation des données : ' + error));
-    }
+        // Fonction de réinitialisation des données
+        function resetData() {
+            const code = document.getElementById("reset-code").value;
+            if (code === "admin123") {
+                fetch(sheetdbURL, {
+                    method: 'DELETE',
+                })
+                .then(() => {
+                    alert('Les données ont été réinitialisées.');
+                    fetchData(); // Recharger les données
+                })
+                .catch(error => {
+                    alert('Erreur lors de la réinitialisation des données.');
+                });
+            } else {
+                alert('Code de réinitialisation incorrect.');
+            }
+        }
 
-    // Initialisation des statistiques
-    fetchStats();
-</script>
+        // Charger les données au démarrage
+        fetchData();
+    </script>
 
 </body>
 </html>
