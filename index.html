@@ -5,115 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Himo App Store</title>
     <style>
+        /* Votre style existant */
         body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
         }
-
         .header {
-            background-color: #0f9d58;
-            padding: 20px;
-            text-align: left;
+            background-color: #333;
             color: white;
-            position: relative;
+            padding: 10px;
+            text-align: center;
         }
-
-        .header h1 {
-            margin: 0;
-        }
-
-        .menu-btn {
-            font-size: 1.5em;
-            background-color: transparent;
-            border: none;
-            color: white;
-            cursor: pointer;
-            position: absolute;
-            right: 20px;
-            top: 20px;
-        }
-
         .menu {
-            height: 100%;
             width: 0;
+            height: 100%;
             position: fixed;
             top: 0;
-            right: 0;
+            left: 0;
             background-color: #333;
             overflow-x: hidden;
-            transition: width 0.5s ease;
+            transition: 0.5s;
             padding-top: 60px;
         }
-
         .menu a {
-            padding: 10px 30px;
+            padding: 8px 8px 8px 32px;
             text-decoration: none;
-            font-size: 1.5em;
+            font-size: 25px;
             color: #818181;
             display: block;
-            transition: color 0.3s;
+            transition: 0.3s;
         }
-
         .menu a:hover {
             color: #f1f1f1;
         }
-
         .menu .close-btn {
             position: absolute;
-            top: 20px;
+            top: 0;
             right: 25px;
-            font-size: 2em;
-            color: white;
-            cursor: pointer;
+            font-size: 36px;
+            margin-left: 50px;
         }
-
         .search-container {
+            margin: 20px;
             text-align: center;
-            margin-top: 50px;
-            flex: 1;
         }
-
-        .search-container input[type="text"] {
-            padding: 10px;
-            width: 60%;
-            font-size: 1.2em;
-            border: 2px solid #0f9d58;
-            border-radius: 5px;
-        }
-
-        .search-container button {
-            padding: 10px 20px;
-            font-size: 1.2em;
-            background-color: #0f9d58;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-left: 10px;
-        }
-
-        .search-container button:hover {
-            background-color: #0c7a43;
-        }
-
         footer {
             text-align: center;
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #0f9d58;
+            padding: 10px;
+            background-color: #333;
             color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>tst</h1>
+        <h1>Himo App Store</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
     </div>
 
@@ -160,7 +111,6 @@
         "netflix": "netflix.html"
     };
 
-    // URL de votre API SheetDB
     const sheetdbURL = 'https://sheetdb.io/api/v1/oalwuk4o7g5qz';
 
     // Fonction pour envoyer des données à SheetDB
@@ -234,14 +184,51 @@
         return score >= 3; // Si la correspondance est suffisamment élevée, on la considère similaire
     }
 
-    // Fonction pour ouvrir le menu
-    function openMenu() {
-        document.getElementById("side-menu").style.width = "250px";
+    // Fonction pour gérer la visite utilisateur
+    function handleVisitor() {
+        // Vérifier si l'utilisateur a déjà visité la page
+        if (!localStorage.getItem('hasVisited')) {
+            localStorage.setItem('hasVisited', 'true');
+            incrementVisitorCount();
+        } else {
+            incrementRevisitCount();
+        }
     }
 
-    // Fonction pour fermer le menu
-    function closeMenu() {
-        document.getElementById("side-menu").style.width = "0";
+    // Fonction pour incrémenter le nombre de visiteurs dans SheetDB
+    function incrementVisitorCount() {
+        fetch(sheetdbURL)
+        .then(response => response.json())
+        .then(data => {
+            const visitorCount = data.length ? data[data.length - 1].visitorCount + 1 : 1;
+            const newData = { visitorCount: visitorCount };
+            fetch(sheetdbURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newData),
+            });
+            console.log('Nombre de visiteurs mis à jour.');
+        });
+    }
+
+    // Fonction pour incrémenter les revisites
+    function incrementRevisitCount() {
+        fetch(sheetdbURL)
+        .then(response => response.json())
+        .then(data => {
+            const revisitCount = data.length ? data[data.length - 1].revisitCount + 1 : 1;
+            const newData = { revisitCount: revisitCount };
+            fetch(sheetdbURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newData),
+            });
+            console.log('Revisites mises à jour.');
+        });
     }
 
     // Fonction pour accéder à la page Admin avec vérification du code
@@ -255,6 +242,18 @@
         }
     }
 
+    // Appel de la fonction pour gérer la visite
+    handleVisitor();
+
+    // Fonction pour ouvrir le menu
+    function openMenu() {
+        document.getElementById("side-menu").style.width = "250px";
+    }
+
+    // Fonction pour fermer le menu
+    function closeMenu() {
+        document.getElementById("side-menu").style.width = "0";
+    }
 </script>
 
 </body>
