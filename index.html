@@ -78,15 +78,16 @@
 
     <div class="header">
         <h1>Himo App Store</h1>
-        <button class="menu-btn" onclick="openMenu()">☰</button>
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
     </div>
 
     <div id="side-menu" class="menu">
-        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
+        <a href="javascript:void(0)" class="close-btn" onclick="toggleMenu()">×</a>
         <a href="a-propos.html" onclick="trackClick('À propos')">À propos</a>
         <a href="confidentialite.html" onclick="trackClick('Confidentialité')">Confidentialité</a>
         <a href="mes-applis.html" onclick="trackClick('Mes applis')">Mes applis</a>
         <a href="help.html" onclick="trackClick('Aide')">Aide</a>
+        <a href="admin.html" onclick="trackClick('Admin')">Admin</a> <!-- Ajout du bouton Admin dans le menu -->
     </div>
 
     <div class="search-container">
@@ -94,15 +95,35 @@
         <button onclick="searchApp()">Rechercher</button>
     </div>
 
-    <div class="button-admin">
-        <button onclick="accessAdmin()">Accéder à l'Admin</button>
-    </div>
-
     <footer>
         <p>&copy; 2024 Himo App Store - Tous droits réservés.</p>
     </footer>
 
 <script>
+    // Fonction pour ouvrir/fermer le menu et enregistrer l'état dans le localStorage
+    function toggleMenu() {
+        const menu = document.getElementById("side-menu");
+        const isOpen = menu.style.width === "250px";  // Vérifier si le menu est ouvert
+        if (isOpen) {
+            menu.style.width = "0";
+            localStorage.setItem('menuState', 'closed');  // Enregistrer l'état "fermé"
+        } else {
+            menu.style.width = "250px";
+            localStorage.setItem('menuState', 'open');  // Enregistrer l'état "ouvert"
+        }
+    }
+
+    // Charger l'état du menu lors du chargement de la page
+    window.onload = function() {
+        const menuState = localStorage.getItem('menuState');
+        if (menuState === 'open') {
+            document.getElementById("side-menu").style.width = "250px";
+        } else {
+            document.getElementById("side-menu").style.width = "0";
+        }
+    };
+
+    // Liste d'applications pour la recherche
     const apps = {
         "chiffrement": "chiffrement.html",
         "numbers game": "numbers-game.html",
@@ -126,21 +147,6 @@
         "ppsspp gold emulator": "pg.html",
         "netflix": "netflix.html"
     };
-
-    // Fonction pour ouvrir le menu
-    function openMenu() {
-        document.getElementById("side-menu").style.width = "250px";
-    }
-
-    // Fonction pour fermer le menu
-    function closeMenu() {
-        document.getElementById("side-menu").style.width = "0";
-    }
-
-    // Fonction pour accéder à la page Admin
-    function accessAdmin() {
-        window.location.href = 'admin.html';
-    }
 
     // Fonction de recherche d'application
     function searchApp() {
@@ -167,7 +173,7 @@
         }
     }
 
-    // Fonction pour vérifier si deux mots sont similaires
+    // Fonction pour vérifier la similarité entre la recherche et l'application
     function isSimilar(input, app) {
         let score = 0;
         input = input.toLowerCase();
@@ -179,6 +185,13 @@
             }
         }
         return score >= 3;
+    }
+
+    // Fonction pour enregistrer le clic sur un bouton
+    function trackClick(buttonName) {
+        // Enregistrer l'action dans le localStorage ou envoyer à un serveur (exemple simple)
+        console.log(`Bouton cliqué : ${buttonName}`);
+        localStorage.setItem('lastClickedButton', buttonName);
     }
 </script>
 
