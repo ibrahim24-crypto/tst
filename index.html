@@ -100,28 +100,6 @@
     </footer>
 
 <script>
-    // Fonction pour ouvrir/fermer le menu et enregistrer l'état dans le localStorage
-    function toggleMenu() {
-        const menu = document.getElementById("side-menu");
-        const isOpen = menu.style.width === "250px";  // Vérifier si le menu est ouvert
-        if (isOpen) {
-            menu.style.width = "0";
-            localStorage.setItem('menuState', 'closed');  // Enregistrer l'état "fermé"
-        } else {
-            menu.style.width = "250px";
-            localStorage.setItem('menuState', 'open');  // Enregistrer l'état "ouvert"
-        }
-    }
-
-    // Charger l'état du menu lors du chargement de la page
-    window.onload = function() {
-        const menuState = localStorage.getItem('menuState');
-        if (menuState === 'open') {
-            document.getElementById("side-menu").style.width = "250px";
-        } else {
-            document.getElementById("side-menu").style.width = "0";
-        }
-    };
 
     // Liste d'applications pour la recherche
     const apps = {
@@ -147,6 +125,43 @@
         "ppsspp gold emulator": "pg.html",
         "netflix": "netflix.html"
     };
+    // URL de l'API SheetDB
+    const sheetdbURL = 'https://sheetdb.io/api/v1/4a5t25jroujht'; 
+
+    // Fonction pour envoyer des données à SheetDB
+    function logToSheetDB(visitor, revisit, contentSearched, buttonClicked) {
+        const data = {
+            visitor: visitor,
+            revisit: revisit,
+            contentSearched: contentSearched,
+            buttonClicked: buttonClicked,
+            timestamp: new Date().toISOString()  // Envoie de l'heure actuelle en format ISO
+        };
+
+        fetch(sheetdbURL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Données enregistrées avec succès.');
+            } else {
+                alert('Erreur lors de l\'enregistrement des données.');
+            }
+        })
+        .catch(error => {
+            alert('Erreur : ' + error);
+        });
+    }
+
+    // Fonction pour suivre les clics sur les boutons
+    function trackClick(buttonName) {
+        const visitor = localStorage.getItem('hasVisited') ? 'Revisiteur' : 'Visiteur';
+        logToSheetDB(visitor, visitor === 'Visiteur' ? 'Non défini' : 'Revisité', 'Non défini', buttonName);
+    }
 
     // Fonction de recherche d'application
     function searchApp() {
@@ -171,9 +186,11 @@
                 alert("Application non trouvée.");
             }
         }
+
+        logToSheetDB('Non défini', 'Non défini', input, 'Recherche');
     }
 
-    // Fonction pour vérifier la similarité entre la recherche et l'application
+    // Fonction de vérification des similarités
     function isSimilar(input, app) {
         let score = 0;
         input = input.toLowerCase();
@@ -187,11 +204,42 @@
         return score >= 3;
     }
 
-    // Fonction pour enregistrer le clic sur un bouton
-    function trackClick(buttonName) {
-        // Enregistrer l'action dans le localStorage ou envoyer à un serveur (exemple simple)
-        console.log(`Bouton cliqué : ${buttonName}`);
-        localStorage.setItem('lastClickedButton', buttonName);
+    // Fonction pour gérer la visite utilisateur
+    function handleVisitor() {
+        // Vérifier si l'utilisateur a déjà visité la page
+        if (!localStorage.getItem('hasVisited')) {
+            localStorage.setItem('hasVisited', 'true');
+            logToSheetDB('Visiteur', 'Non défini', 'Non défini', 'Première visite');
+        } else {
+            logToSheetDB('Revisiteur', 'Revisité', 'Non défini', 'Revisite');
+        }
+    }
+
+    // Appel de la fonction pour gérer la visite
+    handleVisitor();
+
+    // Fonction pour ouvrir le menu
+    function openMenu() {
+        document.getElementById("side-menu").style.width = "250px";
+        localStorage.setItem('menuState', 'open');  // Enregistrer l'état "ouvert"
+        logToSheetDB('Non défini', 'Non défini', 'Non défini', 'Menu ouvert');
+    }
+
+    // Fonction pour fermer le menu
+    function closeMenu() {
+        document.getElementById("side-menu").style.width = "0";
+        localStorage.setItem('menuState', 'closed');  // Enregistrer l'état "fermé"
+        logToSheetDB('Non défini', 'Non défini', 'Non défini', 'Menu fermé');
+    }
+
+    // Charger l'état du menu lors du chargement de la page
+    window.onload = function() {
+        const menuState = localStorage.getItem('menuState');
+        if (menuState === 'open') {
+            document.getElementById("side-menu").style.width = "250px";
+        } else {
+            document.getElementById("side-menu").style.width = "0";
+        }
     }
 </script>
 
