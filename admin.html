@@ -5,31 +5,149 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Himo App Store</title>
     <style>
-        /* Votre style existant pour la page admin */
+        /* Style de base pour la page admin */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .card {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #555;
+        }
     </style>
 </head>
 <body>
-    <h1>Admin - Himo App Store</h1>
-    <p>Nombre total de visiteurs : <span id="visitor-count">Chargement...</span></p>
-    <p>Nombre total de revisites : <span id="revisit-count">Chargement...</span></p>
+
+    <div class="header">
+        <h1>Page Admin - Himo App Store</h1>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Statistiques des Visites</h2>
+            <p>Nombre total de visiteurs : <span id="visitor-count">Chargement...</span></p>
+            <p>Nombre total de revisites : <span id="revisit-count">Chargement...</span></p>
+            <p>Nombre total de clics sur les boutons : <span id="click-count">Chargement...</span></p>
+            <p>Dernière date de clic : <span id="last-click">Chargement...</span></p>
+        </div>
+
+        <div class="card">
+            <h2>Réinitialiser les données</h2>
+            <input type="text" id="reset-code" class="input-field" placeholder="Entrez le code pour réinitialiser les données">
+            <button onclick="resetData()" class="button">Réinitialiser</button>
+        </div>
+    </div>
 
     <script>
-        // Fonction pour récupérer et afficher le nombre de visiteurs et revisites depuis SheetDB
-        function fetchVisitorData() {
-            fetch('https://sheetdb.io/api/v1/oalwuk4o7g5qz')
-            .then(response => response.json())
-            .then(data => {
-                const lastData = data[data.length - 1];
-                document.getElementById('visitor-count').textContent = lastData.visitorCount || 0;
-                document.getElementById('revisit-count').textContent = lastData.revisitCount || 0;
-            })
-            .catch(error => {
-                console.error('Erreur lors de la récupération des données :', error);
-            });
+        const sheetdbURL = 'https://sheetdb.io/api/v1/oalwuk4o7g5qz';
+
+        // Fonction pour récupérer les statistiques depuis SheetDB
+        function fetchStats() {
+            fetch(sheetdbURL)
+                .then(response => response.json())
+                .then(data => {
+                    const lastData = data[data.length - 1];
+                    document.getElementById('visitor-count').textContent = lastData.visitorCount || 0;
+                    document.getElementById('revisit-count').textContent = lastData.revisitCount || 0;
+                    document.getElementById('click-count').textContent = lastData.clickCount || 0;
+                    document.getElementById('last-click').textContent = lastData.timestamp || 'Aucune donnée';
+                })
+                .catch(error => {
+                    console.error('Erreur lors de la récupération des données :', error);
+                });
         }
 
-        // Appeler la fonction pour afficher les données
-        fetchVisitorData();
+        // Fonction pour réinitialiser les données avec un code de réinitialisation
+        function resetData() {
+            const resetCode = document.getElementById('reset-code').value;
+
+            if (resetCode === 'himo.jinu.2010') {
+                fetch(sheetdbURL)
+                    .then(response => response.json())
+                    .then(data => {
+                        const resetData = {
+                            visitorCount: 0,
+                            revisitCount: 0,
+                            clickCount: 0,
+                            timestamp: new Date().toISOString()
+                        };
+
+                        fetch(sheetdbURL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(resetData)
+                        })
+                        .then(() => {
+                            alert('Les données ont été réinitialisées.');
+                            fetchStats();  // Rafraîchir les statistiques
+                        })
+                        .catch(error => {
+                            console.error('Erreur lors de la réinitialisation des données :', error);
+                        });
+                    });
+            } else {
+                alert('Code incorrect !');
+            }
+        }
+
+        // Appeler la fonction pour charger les statistiques à l'ouverture de la page
+        fetchStats();
+
+        // Fonction pour loguer les clics sur les boutons dans SheetDB
+        function logClick(action) {
+            const data = {
+                timestamp: new Date().toISOString(),
+                action: action
+            };
+
+            fetch(sheetdbURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Clic enregistré.');
+                } else {
+                    console.error('Erreur lors de l\'enregistrement du clic.');
+                }
+            })
+            .catch(error => console.error('Erreur :', error));
+        }
+
+        // Exemple d'utilisation : Loguer un clic sur un bouton
+        document.querySelector('.button').addEventListener('click', () => logClick('Réinitialiser les données'));
+
     </script>
+
 </body>
 </html>
