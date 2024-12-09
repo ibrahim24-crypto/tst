@@ -3,83 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administration</title>
+    <title>Admin - Himo App Store</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: #f4f4f4;
-        }
+        /* Votre style existant pour la page admin */
     </style>
 </head>
 <body>
-    <h1>Administration - Données collectées</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Action</th>
-                <th>Label</th>
-            </tr>
-        </thead>
-        <tbody id="data-table">
-            <!-- Les données seront insérées ici -->
-        </tbody>
-    </table>
+    <h1>Admin - Himo App Store</h1>
+    <p>Nombre total de visiteurs : <span id="visitor-count">Chargement...</span></p>
+    <p>Nombre total de revisites : <span id="revisit-count">Chargement...</span></p>
 
-<script>
-    // URL de votre API SheetDB
-    const sheetdbURL = 'https://sheetdb.io/api/v1/oalwuk4o7g5qz';
-
-    // Fonction pour récupérer les données depuis SheetDB
-    async function fetchData() {
-        const response = await fetch(sheetdbURL);
-        if (response.ok) {
-            const data = await response.json();
-            populateTable(data);
-        } else {
-            console.error('Erreur de récupération des données.');
+    <script>
+        // Fonction pour récupérer et afficher le nombre de visiteurs et revisites depuis SheetDB
+        function fetchVisitorData() {
+            fetch('https://sheetdb.io/api/v1/oalwuk4o7g5qz')
+            .then(response => response.json())
+            .then(data => {
+                const lastData = data[data.length - 1];
+                document.getElementById('visitor-count').textContent = lastData.visitorCount || 0;
+                document.getElementById('revisit-count').textContent = lastData.revisitCount || 0;
+            })
+            .catch(error => {
+                console.error('Erreur lors de la récupération des données :', error);
+            });
         }
-    }
 
-    // Fonction pour afficher les données dans le tableau
-    function populateTable(data) {
-        const tableBody = document.getElementById('data-table');
-        tableBody.innerHTML = '';
-
-        data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${row.timestamp}</td>
-                <td>${row.action}</td>
-                <td>${row.label}</td>
-            `;
-            tableBody.appendChild(tr);
-        });
-    }
-
-    // Charger les données au chargement de la page
-    document.addEventListener('DOMContentLoaded', fetchData);
-</script>
-
+        // Appeler la fonction pour afficher les données
+        fetchVisitorData();
+    </script>
 </body>
 </html>
