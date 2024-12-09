@@ -43,6 +43,21 @@
         .button:hover {
             background-color: #555;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -65,6 +80,24 @@
             <input type="text" id="reset-code" class="input-field" placeholder="Entrez le code pour réinitialiser les données">
             <button onclick="resetData()" class="button">Réinitialiser</button>
         </div>
+
+        <div class="card">
+            <h2>Historique des Actions</h2>
+            <table id="action-table">
+                <thead>
+                    <tr>
+                        <th>Visiteur</th>
+                        <th>Revisiteur</th>
+                        <th>Contenu Cherché</th>
+                        <th>Bouton Cliqué</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Les lignes du tableau seront ajoutées ici -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
@@ -80,10 +113,30 @@
                     document.getElementById('revisit-count').textContent = lastData.revisitCount || 0;
                     document.getElementById('click-count').textContent = lastData.clickCount || 0;
                     document.getElementById('last-click').textContent = lastData.timestamp || 'Aucune donnée';
+                    // Appeler la fonction pour afficher les actions dans le tableau
+                    displayActions(data);
                 })
                 .catch(error => {
                     console.error('Erreur lors de la récupération des données :', error);
                 });
+        }
+
+        // Fonction pour afficher les actions dans le tableau
+        function displayActions(data) {
+            const tableBody = document.getElementById('action-table').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';  // Effacer les lignes existantes du tableau
+
+            // Afficher chaque action dans le tableau
+            data.forEach(action => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${action.visitor || 'Non défini'}</td>
+                    <td>${action.revisit || 'Non défini'}</td>
+                    <td>${action.contentSearched || 'Non défini'}</td>
+                    <td>${action.buttonClicked || 'Non défini'}</td>
+                    <td>${action.timestamp || 'Non défini'}</td>
+                `;
+            });
         }
 
         // Fonction pour réinitialiser les données avec un code de réinitialisation
@@ -119,14 +172,14 @@
             }
         }
 
-        // Appeler la fonction pour charger les statistiques à l'ouverture de la page
-        fetchStats();
-
-        // Fonction pour loguer les clics sur les boutons dans SheetDB
-        function logClick(action) {
+        // Fonction pour loguer les actions dans SheetDB (clics, recherche, visite)
+        function logAction(visitor, revisit, contentSearched, buttonClicked) {
             const data = {
                 timestamp: new Date().toISOString(),
-                action: action
+                visitor: visitor,
+                revisit: revisit,
+                contentSearched: contentSearched,
+                buttonClicked: buttonClicked
             };
 
             fetch(sheetdbURL, {
@@ -136,17 +189,16 @@
             })
             .then(response => {
                 if (response.ok) {
-                    console.log('Clic enregistré.');
+                    console.log('Action enregistrée.');
                 } else {
-                    console.error('Erreur lors de l\'enregistrement du clic.');
+                    console.error('Erreur lors de l\'enregistrement de l\'action.');
                 }
             })
             .catch(error => console.error('Erreur :', error));
         }
 
-        // Exemple d'utilisation : Loguer un clic sur un bouton
-        document.querySelector('.button').addEventListener('click', () => logClick('Réinitialiser les données'));
-
+        // Appeler la fonction pour charger les statistiques à l'ouverture de la page
+        fetchStats();
     </script>
 
 </body>
