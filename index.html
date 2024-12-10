@@ -5,120 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Himo App Store</title>
     <style>
-        /* Votre style existant ici */
-        /* Ajout pour le tableau admin */
-        .admin-table {
-            width: 90%;
-            margin: 20px auto;
-            border-collapse: collapse;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
         }
 
-        .admin-table th, .admin-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+        .header {
+            background-color: #0f9d58;
+            color: white;
+            padding: 20px;
             text-align: center;
         }
 
-        .admin-table th {
+        .menu-btn {
+            background-color: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .search-container {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .search-container input {
+            width: 60%;
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #0f9d58;
+            border-radius: 5px;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0f9d58;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .search-container button:hover {
+            background-color: #0c7a43;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
             background-color: #0f9d58;
             color: white;
         }
     </style>
 </head>
-
 <body>
     <div class="header">
-        <h1>Bienvenue !</h1>
-        <button class="menu-btn" onclick="openMenu()">☰</button>
-    </div>
-
-    <div id="side-menu" class="menu">
-        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
-        <a href="a-propos.html">À propos</a>
-        <a href="confidentialite.html">Confidentialité</a>
-        <a href="mes-applis.html">Mes applis</a>
-        <a href="help.html">Aide</a>
-        <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
+        <h1>Bienvenue sur Himo App Store</h1>
+        <button class="menu-btn" onclick="alert('Menu en cours de développement.')">☰</button>
     </div>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Recherchez une application..." oninput="filterApps()">
+        <input type="text" id="search-input" placeholder="Recherchez une application..." />
         <button onclick="searchApp()">Rechercher</button>
     </div>
 
     <footer>
-        <p>&copy; 2024 Himo App Store - Tous droits réservés.</p>
+        &copy; 2024 Himo App Store - Tous droits réservés.
     </footer>
 
-<script>
-    const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
+    <script>
+        const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
 
-    // Enregistrement des données des visiteurs
-    function trackVisitor() {
-        const isRevisitor = localStorage.getItem("hasVisited");
-        const data = {
-            visitor: isRevisitor ? "revisitor" : "visitor",
-            date: new Date().toISOString()
-        };
-
-        fetch(sheetdbURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data })
-        }).then(() => {
-            if (!isRevisitor) localStorage.setItem("hasVisited", "true");
-        });
-    }
-
-    // Suivi des clics sur les boutons
-    function trackButtonClick(buttonName) {
-        const data = {
-            visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
-            button: buttonName,
-            date: new Date().toISOString()
-        };
-
-        fetch(sheetdbURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data })
-        });
-    }
-
-    // Suivi des recherches
-    function trackSearch(content) {
-        const data = {
-            visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
-            search: content,
-            date: new Date().toISOString()
-        };
-
-        fetch(sheetdbURL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data })
-        });
-    }
-
-    function searchApp() {
-        const input = document.getElementById("search-input").value.toLowerCase();
-        trackSearch(input); // Suivi de la recherche
-
-        // Logique de recherche existante
-        // ...
-    }
-
-    function verifyAdmin() {
-        const code = prompt("Entrez le code d'accès pour Admin :");
-        if (code === "4285") {
-            window.location.href = "admin.html";
-        } else {
-            alert("Code incorrect.");
+        // Déterminer le type de visiteur
+        function getVisitorType() {
+            if (localStorage.getItem("hasVisited")) {
+                return "revisitor";
+            } else {
+                localStorage.setItem("hasVisited", "true");
+                return "visitor";
+            }
         }
-    }
 
-    // Suivi des visiteurs au chargement de la page
-    window.onload = trackVisitor;
-</script>
+        // Enregistrer les données dans SheetDB
+        function saveData(data) {
+            fetch(sheetdbURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data })
+            }).catch(error => console.error("Erreur lors de l'enregistrement :", error));
+        }
+
+        // Traquer les visiteurs
+        function trackVisitor() {
+            const data = {
+                visitor: getVisitorType(),
+                date: new Date().toISOString()
+            };
+            saveData(data);
+        }
+
+        // Suivi des recherches
+        function searchApp() {
+            const searchInput = document.getElementById("search-input").value.trim();
+            if (searchInput === "") {
+                alert("Veuillez entrer un terme de recherche.");
+                return;
+            }
+            const data = {
+                visitor: getVisitorType(),
+                searches: searchInput,
+                buttons: "search",
+                date: new Date().toISOString()
+            };
+            saveData(data);
+            alert(`Recherche enregistrée : "${searchInput}"`);
+        }
+
+        // Suivi des visiteurs au chargement
+        window.onload = trackVisitor;
+    </script>
 </body>
 </html>
