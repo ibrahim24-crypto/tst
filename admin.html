@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Himo App Store</title>
+    <style>
+        /* Style pour le tableau admin */
+        .admin-table {
+            width: 90%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        .admin-table th, .admin-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .admin-table th {
+            background-color: #0f9d58;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Admin - Données des Visiteurs</h1>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Recherche</th>
+                <th>Bouton</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="admin-data">
+            <tr>
+                <td colspan="4">Chargement des données...</td>
+            </tr>
+        </tbody>
+    </table>
+
+<script>
+    const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
+
+    function fetchAdminData() {
+        fetch(sheetdbURL)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("admin-data");
+                tableBody.innerHTML = ""; // Efface le contenu par défaut
+
+                data.forEach(entry => {
+                    const row = `<tr>
+                        <td>${entry.visitor || ""}</td>
+                        <td>${entry.search || ""}</td>
+                        <td>${entry.button || ""}</td>
+                        <td>${entry.date || ""}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error("Erreur de chargement des données :", error);
+            });
+    }
+
+    // Charger les données au démarrage
+    window.onload = fetchAdminData;
+</script>
+</body>
+</html>
