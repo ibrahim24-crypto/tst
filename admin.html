@@ -5,33 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Himo App Store</title>
     <style>
-        /* Style pour le tableau admin */
-        .admin-table {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .header {
+            background-color: #0f9d58;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        table {
             width: 90%;
             margin: 20px auto;
             border-collapse: collapse;
         }
 
-        .admin-table th, .admin-table td {
+        th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
         }
 
-        .admin-table th {
+        th {
+            background-color: #0f9d58;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
             background-color: #0f9d58;
             color: white;
         }
     </style>
 </head>
 <body>
-    <h1 style="text-align:center;">Admin - Données des Visiteurs</h1>
-    <table class="admin-table">
+    <div class="header">
+        <h1>Admin - Données des visiteurs</h1>
+    </div>
+
+    <table>
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Recherche</th>
-                <th>Bouton</th>
+                <th>Recherches</th>
+                <th>Boutons</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -42,33 +65,39 @@
         </tbody>
     </table>
 
-<script>
-    const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
+    <footer>
+        &copy; 2024 Himo App Store - Tous droits réservés.
+    </footer>
 
-    function fetchAdminData() {
-        fetch(sheetdbURL)
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById("admin-data");
-                tableBody.innerHTML = ""; // Efface le contenu par défaut
+    <script>
+        const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
 
-                data.forEach(entry => {
-                    const row = `<tr>
-                        <td>${entry.visitor || ""}</td>
-                        <td>${entry.search || ""}</td>
-                        <td>${entry.button || ""}</td>
-                        <td>${entry.date || ""}</td>
-                    </tr>`;
-                    tableBody.innerHTML += row;
+        function fetchAdminData() {
+            fetch(sheetdbURL)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.getElementById("admin-data");
+                    tableBody.innerHTML = ""; // Effacer le contenu par défaut
+
+                    data.forEach(entry => {
+                        const row = `
+                            <tr>
+                                <td>${entry.visitor || ""}</td>
+                                <td>${entry.searches || ""}</td>
+                                <td>${entry.buttons || ""}</td>
+                                <td>${entry.date || ""}</td>
+                            </tr>
+                        `;
+                        tableBody.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des données :", error);
                 });
-            })
-            .catch(error => {
-                console.error("Erreur de chargement des données :", error);
-            });
-    }
+        }
 
-    // Charger les données au démarrage
-    window.onload = fetchAdminData;
-</script>
+        // Charger les données lors du chargement
+        window.onload = fetchAdminData;
+    </script>
 </body>
 </html>
