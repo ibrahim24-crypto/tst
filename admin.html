@@ -99,34 +99,32 @@
     <script>
         const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
 
-        // Charger les données depuis Google Sheets
+        // Fonction pour charger les données depuis SheetDB
         async function loadAdminData() {
             const response = await fetch(sheetdbURL);
             const data = await response.json();
 
-            // Créer des lignes de tableau pour chaque entrée
+            // Insérer les données dans le tableau
             const tableBody = document.querySelector("#data-table tbody");
+            tableBody.innerHTML = ""; // Vider le tableau avant d'ajouter de nouvelles lignes
 
-            data.forEach(entry => {
+            data.forEach((item) => {
                 const tr = document.createElement("tr");
 
-                // Récupérer les actions (clics sur les menus, recherches, etc.)
-                const actions = entry.actions || [];
+                // Ajouter le code utilisateur
                 tr.innerHTML = `
-                    <td>${entry.userCode}</td>
-                    <td>${entry.visitor}</td>
-                    <td>${entry.date}</td>
+                    <td>${item.userCode || "N/A"}</td>
+                    <td>${item.visitor || "Inconnu"}</td>
+                    <td>${item.date}</td>
                     <td>
                         <details>
                             <summary>Voir les actions</summary>
                             <ul>
-                                ${actions.map(action => `
+                                ${item.actions ? item.actions.map(action => `
                                     <li>
                                         <strong>${action.date}:</strong> ${action.buttons || action.searches || "Aucune action"}
-                                        <span><strong>Buttons:</strong> ${action.buttons || "Aucun bouton cliqué"}</span><br>
-                                        <span><strong>Recherches:</strong> ${action.searches || "Aucune recherche effectuée"}</span>
                                     </li>
-                                `).join("")}
+                                `).join("") : "<li>Aucune action disponible</li>"}
                             </ul>
                         </details>
                     </td>
@@ -135,7 +133,8 @@
             });
         }
 
-        loadAdminData();
+        // Charger les données au chargement de la page
+        window.onload = loadAdminData;
     </script>
 </body>
 </html>
