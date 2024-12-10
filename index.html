@@ -5,101 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Himo App Store</title>
     <style>
+        /* Styles simplifiés pour clarté */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
             background-color: #f4f4f9;
         }
-
-        .header {
+        .header, footer {
             background-color: #0f9d58;
             color: white;
-            padding: 20px;
             text-align: center;
-            position: relative;
+            padding: 20px;
         }
-
         .menu-btn {
-            background-color: transparent;
-            border: none;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
             position: absolute;
             right: 20px;
             top: 15px;
+            font-size: 1.5em;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
         }
-
         .menu {
-            height: 100%;
-            width: 0;
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #333;
+            width: 0;
+            height: 100%;
             overflow-x: hidden;
-            transition: width 0.3s ease;
+            background: #333;
+            color: white;
+            transition: width 0.3s;
             padding-top: 60px;
         }
-
         .menu a {
-            padding: 10px 30px;
-            text-decoration: none;
-            font-size: 1.2em;
-            color: white;
             display: block;
-            transition: color 0.3s;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
         }
-
-        .menu a:hover {
-            background-color: #575757;
-        }
-
         .menu .close-btn {
             position: absolute;
-            top: 20px;
-            right: 25px;
+            top: 10px;
+            right: 15px;
             font-size: 1.5em;
-            color: white;
             cursor: pointer;
         }
-
         .search-container {
-            margin: 20px auto;
+            margin: 20px;
             text-align: center;
         }
-
-        .search-container input {
-            width: 60%;
+        .search-container input, .search-container button {
             padding: 10px;
-            font-size: 16px;
-            border: 2px solid #0f9d58;
-            border-radius: 5px;
-        }
-
-        .search-container button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #0f9d58;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #0f9d58;
-            color: white;
+            font-size: 1em;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Bienvenue sur Himo App Store</h1>
+        <h1>Himo App Store</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
     </div>
 
@@ -124,26 +91,25 @@
     <script>
         const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
 
-        // Gestion du menu
+        // Générer ou récupérer un identifiant unique pour chaque utilisateur
+        function getUserCode() {
+            let userCode = localStorage.getItem("userCode");
+            if (!userCode) {
+                userCode = "USER-" + Date.now(); // Génère un code unique basé sur le timestamp
+                localStorage.setItem("userCode", userCode);
+            }
+            return userCode;
+        }
+
+        // Ouvrir et fermer le menu
         function openMenu() {
             document.getElementById("side-menu").style.width = "250px";
         }
-
         function closeMenu() {
             document.getElementById("side-menu").style.width = "0";
         }
 
-        // Déterminer le type de visiteur
-        function getVisitorType() {
-            if (localStorage.getItem("hasVisited")) {
-                return "revisitor";
-            } else {
-                localStorage.setItem("hasVisited", "true");
-                return "visitor";
-            }
-        }
-
-        // Enregistrer les données dans SheetDB
+        // Sauvegarder les données dans Google Sheets
         function saveData(data) {
             fetch(sheetdbURL, {
                 method: "POST",
@@ -155,8 +121,9 @@
         // Traquer les clics sur le menu
         function trackMenuClick(menuItem) {
             const data = {
-                visitor: getVisitorType(),
+                visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
                 buttons: menuItem,
+                code: getUserCode(),
                 date: new Date().toISOString()
             };
             saveData(data);
@@ -170,9 +137,10 @@
                 return;
             }
             const data = {
-                visitor: getVisitorType(),
+                visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
                 searches: searchInput,
                 buttons: "search",
+                code: getUserCode(),
                 date: new Date().toISOString()
             };
             saveData(data);
@@ -189,10 +157,14 @@
             }
         }
 
-        // Suivi des visiteurs au chargement
+        // Déterminer le type de visiteur au chargement
         window.onload = () => {
+            if (!localStorage.getItem("hasVisited")) {
+                localStorage.setItem("hasVisited", "true");
+            }
             const data = {
-                visitor: getVisitorType(),
+                visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
+                code: getUserCode(),
                 date: new Date().toISOString()
             };
             saveData(data);
