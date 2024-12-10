@@ -1,65 +1,174 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil</title>
+    <title>Himo App Store</title>
     <style>
-        /* Style pour la page d'accueil */
+        /* Styles simplifiés pour clarté */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
         }
-        .header {
+        .header, footer {
             background-color: #0f9d58;
             color: white;
+            text-align: center;
             padding: 20px;
-            width: 100%;
+        }
+        .menu-btn {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 1.5em;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            overflow-x: hidden;
+            background: #333;
+            color: white;
+            transition: width 0.3s;
+            padding-top: 60px;
+        }
+        .menu a {
+            display: block;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+        }
+        .menu .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .search-container {
+            margin: 20px;
             text-align: center;
         }
-        .user-info {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        .login-btn {
-            padding: 10px 20px;
-            background-color: #0f9d58;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
+        .search-container input, .search-container button {
+            padding: 10px;
+            font-size: 1em;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Himo App Store</h1>
+        <button class="menu-btn" onclick="openMenu()">☰</button>
+    </div>
 
-<div class="header">
-    <h1>Bienvenue sur Himo App Store</h1>
-</div>
+    <div id="side-menu" class="menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
+        <a href="a-propos.html" onclick="trackMenuClick('À propos')">À propos</a>
+        <a href="confidentialite.html" onclick="trackMenuClick('Confidentialité')">Confidentialité</a>
+        <a href="mes-applis.html" onclick="trackMenuClick('Mes applis')">Mes applis</a>
+        <a href="help.html" onclick="trackMenuClick('Aide')">Aide</a>
+        <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
+    </div>
 
-<div class="user-info" id="userInfo">
-    <!-- Afficher le nom et prénom si l'utilisateur est connecté -->
-</div>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Recherchez une application..." />
+        <button onclick="searchApp()">Rechercher</button>
+    </div>
 
-<button class="login-btn" onclick="window.location.href='login.html'">Se connecter</button>
+    <footer>
+        &copy; 2024 Himo App Store - Tous droits réservés.
+    </footer>
 
-<script>
-    // Vérifier si l'utilisateur est connecté
-    const user = JSON.parse(localStorage.getItem("loggedInUser"));
+    <script>
+        const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
 
-    if (user) {
-        document.getElementById("userInfo").innerHTML = `Bienvenue, ${user.firstName} ${user.lastName}`;
-    } else {
-        document.getElementById("userInfo").innerHTML = "Veuillez vous connecter.";
-    }
-</script>
+        // Générer ou récupérer un identifiant unique pour chaque utilisateur
+        function getUserCode() {
+            let userCode = localStorage.getItem("userCode");
+            if (!userCode) {
+                userCode = "USER-" + Date.now(); // Génère un code unique basé sur le timestamp
+                localStorage.setItem("userCode", userCode);
+            }
+            return userCode;
+        }
 
+        // Ouvrir et fermer le menu
+        function openMenu() {
+            document.getElementById("side-menu").style.width = "250px";
+        }
+        function closeMenu() {
+            document.getElementById("side-menu").style.width = "0";
+        }
+
+        // Sauvegarder les données dans Google Sheets
+        function saveData(data) {
+            fetch(sheetdbURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ data })
+            }).catch(error => console.error("Erreur lors de l'enregistrement :", error));
+        }
+
+        // Traquer les clics sur le menu
+        function trackMenuClick(menuItem) {
+            const data = {
+                visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
+                buttons: menuItem,
+                code: getUserCode(),
+                date: new Date().toISOString()
+            };
+            saveData(data);
+        }
+
+        // Suivi des recherches
+        function searchApp() {
+            const searchInput = document.getElementById("search-input").value.trim();
+            if (searchInput === "") {
+                alert("Veuillez entrer un terme de recherche.");
+                return;
+            }
+            const data = {
+                visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
+                searches: searchInput,
+                buttons: "search",
+                code: getUserCode(),
+                date: new Date().toISOString()
+            };
+            saveData(data);
+            alert(`Recherche enregistrée : "${searchInput}"`);
+        }
+
+        // Vérification de l'accès admin
+        function verifyAdmin() {
+            const code = prompt("Entrez le code d'accès pour Admin :");
+            if (code === "1234azer") {
+                window.location.href = "admin.html";
+            } else {
+                alert("Code incorrect.");
+            }
+        }
+
+        // Déterminer le type de visiteur au chargement
+        window.onload = () => {
+            if (!localStorage.getItem("hasVisited")) {
+                localStorage.setItem("hasVisited", "true");
+            }
+            const data = {
+                visitor: localStorage.getItem("hasVisited") ? "revisitor" : "visitor",
+                code: getUserCode(),
+                date: new Date().toISOString()
+            };
+            saveData(data);
+        };
+    </script>
 </body>
 </html>
