@@ -3,23 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Panneau d'administration</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #f4f7fa;
+            color: #333;
         }
+
+        h1 {
+            text-align: center;
+            color: #0f9d58;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         table th, table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
+            text-align: center;
         }
+
         table th {
-            background-color: #f4f4f9;
-            text-align: left;
+            background-color: #0f9d58;
+            color: white;
+            font-weight: bold;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        table tr:hover {
+            background-color: #d1f7d6;
+        }
+
+        details {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: #0f9d58;
+        }
+
+        summary:hover {
+            text-decoration: underline;
+        }
+
+        ul {
+            list-style: disc;
+            padding-left: 20px;
+            color: #555;
+        }
+
+        li {
+            padding: 5px 0;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #777;
         }
     </style>
 </head>
@@ -30,13 +87,14 @@
             <tr>
                 <th>Code Utilisateur</th>
                 <th>Visiteur</th>
-                <th>Bouton/Recherche</th>
                 <th>Date</th>
-                <th>Détails</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
+
+    <footer>&copy; 2024 Himo App Store - Tous droits réservés.</footer>
 
     <script>
         const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
@@ -47,22 +105,37 @@
             const data = await response.json();
             const tableBody = document.querySelector("#data-table tbody");
 
-            data.forEach(row => {
+            // Grouper les actions par utilisateur
+            const groupedData = data.reduce((acc, row) => {
+                if (!acc[row.code]) acc[row.code] = [];
+                acc[row.code].push(row);
+                return acc;
+            }, {});
+
+            // Remplir le tableau avec les données groupées
+            for (const [userCode, actions] of Object.entries(groupedData)) {
+                const firstAction = actions[0]; // Utilisé pour les colonnes principales
+
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${row.code}</td>
-                    <td>${row.visitor}</td>
-                    <td>${row.buttons || row.searches || "N/A"}</td>
-                    <td>${row.date}</td>
-                    <td><button onclick="showDetails('${row.code}')">Détails</button></td>
+                    <td>${userCode}</td>
+                    <td>${firstAction.visitor || "N/A"}</td>
+                    <td>${firstAction.date || "N/A"}</td>
+                    <td>
+                        <details>
+                            <summary>Voir les détails</summary>
+                            <ul>
+                                ${actions.map(action => `
+                                    <li>
+                                        <strong>${action.date}:</strong> ${action.buttons || action.searches || "Aucune action"}
+                                    </li>
+                                `).join("")}
+                            </ul>
+                        </details>
+                    </td>
                 `;
                 tableBody.appendChild(tr);
-            });
-        }
-
-        // Afficher les détails d'un utilisateur
-        function showDetails(userCode) {
-            alert(`Afficher les actions pour le code utilisateur : ${userCode}`);
+            }
         }
 
         loadAdminData();
