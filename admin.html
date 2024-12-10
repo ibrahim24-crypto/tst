@@ -3,101 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Himo App Store</title>
+    <title>Admin Panel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
+            margin: 20px;
         }
-
-        .header {
-            background-color: #0f9d58;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-
         table {
-            width: 90%;
-            margin: 20px auto;
+            width: 100%;
             border-collapse: collapse;
         }
-
-        th, td {
+        table th, table td {
             border: 1px solid #ddd;
-            padding: 10px;
-            text-align: center;
+            padding: 8px;
         }
-
-        th {
-            background-color: #0f9d58;
-            color: white;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            background-color: #0f9d58;
-            color: white;
+        table th {
+            background-color: #f4f4f9;
+            text-align: left;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Admin - Données des visiteurs</h1>
-    </div>
-
-    <table>
+    <h1>Panneau d'administration</h1>
+    <table id="data-table">
         <thead>
             <tr>
-                <th>Type</th>
-                <th>Recherches</th>
-                <th>Boutons</th>
+                <th>Code Utilisateur</th>
+                <th>Visiteur</th>
+                <th>Bouton/Recherche</th>
                 <th>Date</th>
+                <th>Détails</th>
             </tr>
         </thead>
-        <tbody id="admin-data">
-            <tr>
-                <td colspan="4">Chargement des données...</td>
-            </tr>
-        </tbody>
+        <tbody></tbody>
     </table>
-
-    <footer>
-        &copy; 2024 Himo App Store - Tous droits réservés.
-    </footer>
 
     <script>
         const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
 
-        function fetchAdminData() {
-            fetch(sheetdbURL)
-                .then(response => response.json())
-                .then(data => {
-                    const tableBody = document.getElementById("admin-data");
-                    tableBody.innerHTML = ""; // Effacer le contenu par défaut
+        // Charger les données depuis Google Sheets
+        async function loadAdminData() {
+            const response = await fetch(sheetdbURL);
+            const data = await response.json();
+            const tableBody = document.querySelector("#data-table tbody");
 
-                    data.forEach(entry => {
-                        const row = `
-                            <tr>
-                                <td>${entry.visitor || ""}</td>
-                                <td>${entry.searches || ""}</td>
-                                <td>${entry.buttons || ""}</td>
-                                <td>${entry.date || ""}</td>
-                            </tr>
-                        `;
-                        tableBody.innerHTML += row;
-                    });
-                })
-                .catch(error => {
-                    console.error("Erreur lors de la récupération des données :", error);
-                });
+            data.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${row.code}</td>
+                    <td>${row.visitor}</td>
+                    <td>${row.buttons || row.searches || "N/A"}</td>
+                    <td>${row.date}</td>
+                    <td><button onclick="showDetails('${row.code}')">Détails</button></td>
+                `;
+                tableBody.appendChild(tr);
+            });
         }
 
-        // Charger les données lors du chargement
-        window.onload = fetchAdminData;
+        // Afficher les détails d'un utilisateur
+        function showDetails(userCode) {
+            alert(`Afficher les actions pour le code utilisateur : ${userCode}`);
+        }
+
+        loadAdminData();
     </script>
 </body>
 </html>
