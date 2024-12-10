@@ -7,9 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            background-color: #f4f4f9;
         }
 
         .header {
@@ -17,6 +17,7 @@
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
 
         .menu-btn {
@@ -26,8 +27,42 @@
             font-size: 1.5em;
             cursor: pointer;
             position: absolute;
-            top: 20px;
             right: 20px;
+            top: 15px;
+        }
+
+        .menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: width 0.3s ease;
+            padding-top: 60px;
+        }
+
+        .menu a {
+            padding: 10px 30px;
+            text-decoration: none;
+            font-size: 1.2em;
+            color: white;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .menu a:hover {
+            background-color: #575757;
+        }
+
+        .menu .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 1.5em;
+            color: white;
+            cursor: pointer;
         }
 
         .search-container {
@@ -54,10 +89,6 @@
             margin-left: 10px;
         }
 
-        .search-container button:hover {
-            background-color: #0c7a43;
-        }
-
         footer {
             text-align: center;
             padding: 10px;
@@ -69,7 +100,16 @@
 <body>
     <div class="header">
         <h1>Bienvenue sur Himo App Store</h1>
-        <button class="menu-btn" onclick="alert('Menu en cours de développement.')">☰</button>
+        <button class="menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="side-menu" class="menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
+        <a href="a-propos.html" onclick="trackMenuClick('À propos')">À propos</a>
+        <a href="confidentialite.html" onclick="trackMenuClick('Confidentialité')">Confidentialité</a>
+        <a href="mes-applis.html" onclick="trackMenuClick('Mes applis')">Mes applis</a>
+        <a href="help.html" onclick="trackMenuClick('Aide')">Aide</a>
+        <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
     </div>
 
     <div class="search-container">
@@ -83,6 +123,15 @@
 
     <script>
         const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
+
+        // Gestion du menu
+        function openMenu() {
+            document.getElementById("side-menu").style.width = "250px";
+        }
+
+        function closeMenu() {
+            document.getElementById("side-menu").style.width = "0";
+        }
 
         // Déterminer le type de visiteur
         function getVisitorType() {
@@ -103,10 +152,11 @@
             }).catch(error => console.error("Erreur lors de l'enregistrement :", error));
         }
 
-        // Traquer les visiteurs
-        function trackVisitor() {
+        // Traquer les clics sur le menu
+        function trackMenuClick(menuItem) {
             const data = {
                 visitor: getVisitorType(),
+                buttons: menuItem,
                 date: new Date().toISOString()
             };
             saveData(data);
@@ -129,8 +179,24 @@
             alert(`Recherche enregistrée : "${searchInput}"`);
         }
 
+        // Vérification de l'accès admin
+        function verifyAdmin() {
+            const code = prompt("Entrez le code d'accès pour Admin :");
+            if (code === "1234azer") {
+                window.location.href = "admin.html";
+            } else {
+                alert("Code incorrect.");
+            }
+        }
+
         // Suivi des visiteurs au chargement
-        window.onload = trackVisitor;
+        window.onload = () => {
+            const data = {
+                visitor: getVisitorType(),
+                date: new Date().toISOString()
+            };
+            saveData(data);
+        };
     </script>
 </body>
 </html>
