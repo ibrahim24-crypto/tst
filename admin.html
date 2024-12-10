@@ -127,7 +127,9 @@
                             <ul>
                                 ${actions.map(action => `
                                     <li>
-                                        <strong>${action.date}:</strong> ${action.buttons || action.searches || "Aucune action"}
+                                        <strong>${action.date}:</strong> 
+                                        <span><strong>Buttons:</strong> ${action.buttons || "Aucun bouton cliqué"}</span><br>
+                                        <span><strong>Recherches:</strong> ${action.searches || "Aucune recherche effectuée"}</span>
                                     </li>
                                 `).join("")}
                             </ul>
