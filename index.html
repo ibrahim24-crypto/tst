@@ -36,7 +36,7 @@
             width: 0;
             position: fixed;
             top: 0;
-            right: 0;
+            right: 0; /* Menu position set to the right */
             background-color: #333;
             overflow-x: hidden;
             transition: width 0.3s ease;
@@ -98,6 +98,9 @@
 
         /* Style for Login Button */
         .login-btn {
+            position: absolute;
+            top: 15px;
+            right: 100px;
             background-color: transparent;
             color: white;
             font-size: 1.2em;
@@ -114,6 +117,7 @@
     <div class="header">
         <h1>Bienvenue sur Himo App Store</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
+        <button id="login-btn" class="login-btn" onclick="toggleLoginState()">Se connecter</button>
     </div>
 
     <div id="side-menu" class="menu">
@@ -122,7 +126,7 @@
         <a href="confidentialite.html" onclick="trackMenuClick('Confidentialité')">Confidentialité</a>
         <a href="mes-applis.html" onclick="trackMenuClick('Mes applis')">Mes applis</a>
         <a href="help.html" onclick="trackMenuClick('Aide')">Aide</a>
-        <a href="javascript:void(0)" id="login-btn" onclick="toggleLoginState()">Se connecter</a>
+        <a href="login.html" onclick="trackMenuClick('Login')">Se connecter</a>
         <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
     </div>
 
@@ -198,7 +202,7 @@
         // Vérification de l'accès admin
         function verifyAdmin() {
             const code = prompt("Entrez le code d'accès pour Admin :");
-            if (code === "123") {
+            if (code === "1234azer") {
                 window.location.href = "admin.html";
             } else {
                 alert("Code incorrect.");
