@@ -38,6 +38,40 @@
             top: 20px;
         }
 
+        .menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: width 0.5s ease;
+            padding-top: 60px;
+        }
+
+        .menu a {
+            padding: 10px 30px;
+            text-decoration: none;
+            font-size: 1.5em;
+            color: #818181;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .menu a:hover {
+            color: #f1f1f1;
+        }
+
+        .menu .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2em;
+            color: white;
+            cursor: pointer;
+        }
+
         .search-container {
             text-align: center;
             margin-top: 50px;
@@ -67,23 +101,6 @@
             background-color: #0c7a43;
         }
 
-        .login-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: #0f9d58;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 30px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
         footer {
             text-align: center;
             margin-top: 20px;
@@ -93,28 +110,124 @@
         }
     </style>
 </head>
+
 <body>
+
     <div class="header">
         <h1>Bienvenue !</h1>
+        <button class="menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="side-menu" class="menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
+        <a href="a-propos.html">À propos</a>
+        <a href="confidentialite.html">Confidentialité</a>
+        <a href="mes-applis.html">Mes applis</a>
+        <a href="help.html">Aide</a>
+        <a href="login.html">Se connecter</a>
     </div>
 
     <div class="search-container">
-        <input type="text" id="search-input" placeholder="Recherchez une application...">
+        <input type="text" id="search-input" placeholder="Recherchez une application..." oninput="filterApps()">
         <button onclick="searchApp()">Rechercher</button>
     </div>
-
-    <button class="login-btn" onclick="window.location.href='login.html'">🔑</button>
 
     <footer>
         <p>&copy; 2024 Himo App Store - Tous droits réservés.</p>
     </footer>
 
     <script>
+        const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
+        let userId = localStorage.getItem("userId");
+        if (!userId) {
+            userId = generateUserId();
+            localStorage.setItem("userId", userId);
+        }
+
+        // Fonction pour générer un ID unique pour l'utilisateur
+        function generateUserId() {
+            return 'user-' + Math.floor(Math.random() * 100000);
+        }
+
+        function openMenu() {
+            document.getElementById("side-menu").style.width = "250px";
+            document.querySelector(".menu-btn").style.display = "none";
+        }
+
+        function closeMenu() {
+            document.getElementById("side-menu").style.width = "0";
+            document.querySelector(".menu-btn").style.display = "block";
+        }
+
+        // Fonction de recherche d'application
         function searchApp() {
             const input = document.getElementById("search-input").value.toLowerCase();
-            // Logique de recherche (simplifiée pour l'exemple)
-            alert("Recherche pour : " + input);
+            logSearch(input);
+
+            // Logique pour rediriger vers l'application ou afficher un message
+            alert("Rechercher : " + input);
+        }
+
+        // Fonction pour enregistrer une recherche
+        function logSearch(query) {
+            const data = {
+                visitor: userId, // ID utilisateur unique
+                revisitor: userId, // Réutilise le même ID pour le revisiteur
+                searches: query,
+                buttons: "searchButton", // Nom du bouton cliqué
+                date: new Date().toISOString(),
+                code: "N/A", // Si applicable, vous pouvez générer un code ici
+                email: "N/A", // Pour l'instant, l'email est "N/A" mais vous pouvez l'ajouter plus tard
+                password: "N/A", // Pareil pour le mot de passe
+                ACD: new Date().toISOString() // Date de création du compte
+            };
+
+            fetch(sheetdbURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify([data]),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Données enregistrées :', data);
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        }
+
+        // Enregistrement d'un clic sur un bouton
+        function logButtonClick(buttonName) {
+            const data = {
+                visitor: userId,
+                revisitor: userId,
+                searches: "N/A", // Pas de recherche ici
+                buttons: buttonName,
+                date: new Date().toISOString(),
+                code: "N/A",
+                email: "N/A",
+                password: "N/A",
+                ACD: new Date().toISOString()
+            };
+
+            fetch(sheetdbURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify([data]),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Données enregistrées pour le bouton :', data);
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
         }
     </script>
+
 </body>
 </html>
