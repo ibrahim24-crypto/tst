@@ -1,37 +1,36 @@
+<!-- login.html -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un Compte</title>
+    <title>Connexion</title>
     <style>
+        /* Style pour le formulaire de connexion */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
             margin: 0;
         }
         .login-container {
             background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
         }
-        .login-container h2 {
-            text-align: center;
-        }
-        .login-container input {
+        input[type="email"], input[type="password"] {
             width: 100%;
             padding: 10px;
             margin: 10px 0;
-            border: 2px solid #0f9d58;
+            border: 2px solid #ccc;
             border-radius: 5px;
         }
-        .login-container button {
+        button {
             width: 100%;
             padding: 10px;
             background-color: #0f9d58;
@@ -40,57 +39,50 @@
             border-radius: 5px;
             cursor: pointer;
         }
-        .login-container button:hover {
+        button:hover {
             background-color: #0c7a43;
+        }
+        .link {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <h2>Créer un Compte</h2>
-        <input type="email" id="email" placeholder="Votre Email" required>
-        <input type="password" id="password" placeholder="Votre Mot de Passe" required>
-        <button onclick="createAccount()">Créer un Compte</button>
+<div class="login-container">
+    <h2>Se connecter</h2>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Votre email" required>
+        <input type="password" id="password" placeholder="Votre mot de passe" required>
+        <button type="submit">Se connecter</button>
+    </form>
+    <div class="link">
+        <p>Pas encore de compte ? <a href="signup.html">Créer un compte</a></p>
     </div>
+</div>
 
-    <script>
-        const sheetdbURL = "https://sheetdb.io/api/v1/sr5ru43f18uf0";
+<script>
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
 
-        function createAccount() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const date = new Date().toISOString(); // Date de création du compte
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
 
-            if (email && password) {
-                const data = {
-                    email: email,
-                    password: password,
-                    date: date,
-                    ACD: date
-                };
+        // Vérifiez si l'email et le mot de passe correspondent
+        const userData = JSON.parse(localStorage.getItem("users")) || [];
+        const user = userData.find(user => user.email === email && user.password === password);
 
-                fetch(sheetdbURL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify([data]),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert('Compte créé avec succès !');
-                    window.location.href = 'index.html'; // Redirige vers la page d'accueil
-                })
-                .catch(error => {
-                    console.error('Erreur:', error);
-                    alert('Une erreur est survenue, veuillez réessayer.');
-                });
-            } else {
-                alert('Veuillez remplir tous les champs.');
-            }
+        if (user) {
+            // Sauvegarder l'ID utilisateur dans localStorage pour une session persistante
+            localStorage.setItem("loggedInUser", JSON.stringify(user));
+            window.location.href = "index.html"; // Rediriger vers la page d'accueil après connexion
+        } else {
+            alert("Email ou mot de passe incorrect.");
         }
-    </script>
+    });
+</script>
 
 </body>
 </html>
