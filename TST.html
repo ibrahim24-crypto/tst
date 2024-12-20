@@ -110,11 +110,9 @@
         }
     </style>
 </head>
-
 <body>
-
     <div class="header">
-        <h1>Bienveue!</h1>
+        <h1>Bienvenue!</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
     </div>
 
@@ -135,183 +133,38 @@
     <footer>
         <p>&copy; 2024 Himo App Store - Tous droits réservés.</p>
     </footer>
-    
-<script>
-    const apps = {
-        "chiffrement": "chiffrement.html",
-        "numbers game": "numbers-game.html",
-        "snaptube": "snaptube.html",
-        "minecraft": "minecraft.html",
-        "wps app pro": "wpspro.html",
-        "dream league": "dreamleague.html",
-        "dream league soccer": "dreamleague.html",
-        "dls": "dreamleague.html",
-        "wps app": "wpspro.html",
-        "wps pro": "wpspro.html",
-        "wps": "wpspro.html",
-        "youtube premium": "ytp.html",
-        "yassine tv": "ytv.html",
-        "ytv": "ytv.html",
-        "yassine": "ytv.html",
-        "ppsspp gold": "pg.html",
-        "ppsspp": "pg.html",
-        "psp": "pg.html",
-        "ppsspp emulator": "pg.html",
-        "ppsspp gold emulator": "pg.html",
-        "netflix": "netflix.html"
-    };
 
-    // Fonction pour vérifier la similarité entre l'entrée utilisateur et le nom de l'application
-    function isSimilar(input, appName) {
-        let missingChars = 0;
-        let j = 0;
+    <script>
+        const sheetDBUrl = "https://sheetdb.io/api/v1/v0dkeltmmocj1";
 
-        for (let i = 0; i < appName.length; i++) {
-            if (j < input.length && appName[i].toLowerCase() === input[j]) {
-                j++;
-            } else {
-                missingChars++;
-            }
-            if (missingChars > 1) return false;
-        }
-        return true;
-    }
-
-    // Fonction de recherche d'application
-    function searchApp() {
-        const input = document.getElementById("search-input").value.toLowerCase();
-        let found = false;
-        const similarApps = [];
-
-        for (const app in apps) {
-            if (app.toLowerCase() === input || isSimilar(input, app)) {
-                window.location.href = apps[app];
-                found = true;
-                break;
-            } else if (input.length > 0 && app.toLowerCase().includes(input)) {
-                similarApps.push(app);
+        // Fonction pour envoyer les données à SheetDB
+        async function sendData(visitors, revisitors) {
+            const data = { visitors, revisitors };
+            try {
+                const response = await fetch(sheetDBUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ data }),
+                });
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP : ${response.status}`);
+                }
+            } catch (error) {
+                console.error("Erreur lors de l'envoi des données à SheetDB :", error);
             }
         }
 
-        if (!found) {
-            if (similarApps.length > 0) {
-                alert("Application non trouvée. Peut-être vouliez-vous : " + similarApps.join(", ") + " ?");
-            } else {
-                alert("Application non trouvée.");
-            }
-        }
-    }
+        // Gestion des visiteurs et revisiteurs via localStorage
+        let revisitors = parseInt(localStorage.getItem("revisitors")) || 0;
 
-    // Menu latéral : ouverture et fermeture
-    function openMenu() {
-        document.getElementById("side-menu").style.width = "250px";
-    }
-
-    function closeMenu() {
-        document.getElementById("side-menu").style.width = "0";
-    }
-
-    // Vérification Admin
-    function verifyAdmin() {
-        const code = prompt("Entrez le code d'accès pour Admin :");
-        if (code === "4285") {
-            window.location.href = "admin.html";
+        if (localStorage.getItem("isReturningVisitor")) {
+            revisitors++;
         } else {
-            alert("Code incorrect.");
+            localStorage.setItem("isReturningVisitor", "true");
         }
-    }
 
-    // URL pour envoyer les données à SheetDB
-    const sheetDBUrl = "https://sheetdb.io/api/v1/v0dkeltmmocj1";
-
-    // Fonction pour envoyer les données à SheetDB
-    async function sendData(total, visitors, revisitors) {
-        const data = { Total: total, visitors: visitors, revisitors: revisitors };
-        await fetch(sheetDBUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ data }),
-        });
-    }
-
-    // Gestion des visiteurs et revisiteurs via localStorage
-    let totalVisitors = parseInt(localStorage.getItem("totalVisitors")) || 0;
-    let revisitors = parseInt(localStorage.getItem("revisitors")) || 0;
-
-    if (localStorage.getItem("isReturningVisitor")) {
-        revisitors++;
-    } else {
-        localStorage.setItem("isReturningVisitor", "true");
-    }
-
-    totalVisitors++;
-    localStorage.setItem("totalVisitors", totalVisitors);
-    localStorage.setItem("revisitors", revisitors);
-
-    // Envoi des données à SheetDB
-    sendData(totalVisitors, totalVisitors - revisitors, revisitors);
-</script>
-<script>
-    // URL pour envoyer les données à SheetDB
-    const sheetDBUrl = "https://sheetdb.io/api/v1/v0dkeltmmocj1";
-
-    // Fonction pour envoyer les données à SheetDB
-    async function sendData(total, visitors, revisitors) {
-    const data = { 
-        Total: total || 0, 
-        visitors: visitors || 0, 
-        revisitors: revisitors || 0 
-    };
-    console.log("Données envoyées à SheetDB :", data);
-
-    try {
-        const response = await fetch(sheetDBUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ data }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP : ${response.status}`);
-        }
-        console.log("Données envoyées avec succès !");
-    } catch (error) {
-        console.error("Erreur lors de l'envoi des données à SheetDB :", error);
-    }
-}
-
-    // Gestion des visiteurs et revisiteurs via localStorage
-    let totalVisitors = parseInt(localStorage.getItem("totalVisitors")) || 0;
-    let revisitors = parseInt(localStorage.getItem("revisitors")) || 0;
-    let uniqueVisitors = totalVisitors - revisitors;
-
-    // Vérifie si c'est un revisiteur
-    if (localStorage.getItem("isReturningVisitor")) {
-        revisitors++;
-    } else {
-        // Nouveau visiteur
-        uniqueVisitors++;
-        localStorage.setItem("isReturningVisitor", "true");
-    }
-
-    // Met à jour le nombre total de visiteurs
-    totalVisitors++;
-    localStorage.setItem("totalVisitors", totalVisitors);
-    localStorage.setItem("revisitors", revisitors);
-
-    // Affiche les informations dans la console pour débogage
-    console.log("Total Visitors:", totalVisitors);
-    console.log("Unique Visitors:", uniqueVisitors);
-    console.log("Revisitors:", revisitors);
-
-    // Envoi des données à SheetDB
-    sendData(totalVisitors, uniqueVisitors, revisitors);
-</script>
-
-    
+        // Envoi des données à SheetDB
+        sendData(1, revisitors);
+    </script>
 </body>
 </html>
