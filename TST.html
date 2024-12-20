@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Himo App Store</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .header {
+            background-color: #0f9d58;
+            padding: 20px;
+            text-align: left;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .menu-btn {
+            font-size: 1.5em;
+            background-color: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+
+        .menu {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            top: 0;
+            right: 0;
+            background-color: #333;
+            overflow-x: hidden;
+            transition: width 0.5s ease;
+            padding-top: 60px;
+        }
+
+        .menu a {
+            padding: 10px 30px;
+            text-decoration: none;
+            font-size: 1.5em;
+            color: #818181;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .menu a:hover {
+            color: #f1f1f1;
+        }
+
+        .menu .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 2em;
+            color: white;
+            cursor: pointer;
+        }
+
+        .search-container {
+            text-align: center;
+            margin-top: 50px;
+            flex: 1;
+        }
+
+        .search-container input[type="text"] {
+            padding: 10px;
+            width: 60%;
+            font-size: 1.2em;
+            border: 2px solid #0f9d58;
+            border-radius: 5px;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #0f9d58;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+
+        .search-container button:hover {
+            background-color: #0c7a43;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #0f9d58;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Bienvenue!</h1>
+        <button class="menu-btn" onclick="openMenu()">☰</button>
+    </div>
+
+    <div id="side-menu" class="menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">×</a>
+        <a href="a-propos.html">À propos</a>
+        <a href="confidentialite.html">Confidentialité</a>
+        <a href="mes-applis.html">Mes applis</a>
+        <a href="help.html">Aide</a>
+        <a href="javascript:void(0)" onclick="verifyAdmin()">Admin</a>
+    </div>
+
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Recherchez une application...">
+        <button onclick="searchApp()">Rechercher</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Himo App Store - Tous droits réservés.</p>
+    </footer>
+    
+<script>
+    const apps = {
+        "chiffrement": "chiffrement.html",
+        "numbers game": "numbers-game.html",
+        "snaptube": "snaptube.html",
+        "minecraft": "minecraft.html",
+        "wps app pro": "wpspro.html",
+        "dream league": "dreamleague.html",
+        "dream league soccer": "dreamleague.html",
+        "dls": "dreamleague.html",
+        "wps app": "wpspro.html",
+        "wps pro": "wpspro.html",
+        "wps": "wpspro.html",
+        "youtube premium": "ytp.html",
+        "yassine tv": "ytv.html",
+        "ytv": "ytv.html",
+        "yassine": "ytv.html",
+        "ppsspp gold": "pg.html",
+        "ppsspp": "pg.html",
+        "psp": "pg.html",
+        "ppsspp emulator": "pg.html",
+        "ppsspp gold emulator": "pg.html",
+        "netflix": "netflix.html"
+    };
+
+    // Fonction pour vérifier la similarité entre l'entrée utilisateur et le nom de l'application
+    function isSimilar(input, appName) {
+        let missingChars = 0;
+        let j = 0;
+
+        for (let i = 0; i < appName.length; i++) {
+            if (j < input.length && appName[i].toLowerCase() === input[j]) {
+                j++;
+            } else {
+                missingChars++;
+            }
+            if (missingChars > 1) return false;
+        }
+        return true;
+    }
+
+    // Fonction de recherche d'application
+    function searchApp() {
+        const input = document.getElementById("search-input").value.toLowerCase();
+        let found = false;
+        const similarApps = [];
+
+        for (const app in apps) {
+            if (app.toLowerCase() === input || isSimilar(input, app)) {
+                window.location.href = apps[app];
+                found = true;
+                break;
+            } else if (input.length > 0 && app.toLowerCase().includes(input)) {
+                similarApps.push(app);
+            }
+        }
+
+        if (!found) {
+            if (similarApps.length > 0) {
+                alert("Application non trouvée. Peut-être vouliez-vous : " + similarApps.join(", ") + " ?");
+            } else {
+                alert("Application non trouvée.");
+            }
+        }
+    }
+
+    // Menu latéral : ouverture et fermeture
+    function openMenu() {
+        document.getElementById("side-menu").style.width = "250px";
+    }
+
+    function closeMenu() {
+        document.getElementById("side-menu").style.width = "0";
+    }
+
+    // Vérification Admin
+    function verifyAdmin() {
+        const code = prompt("Entrez le code d'accès pour Admin :");
+        if (code === "4285") {
+            window.location.href = "admin.html";
+        } else {
+            alert("Code incorrect.");
+        }
+    }
+
+    // URL pour envoyer les données à SheetDB
+    const sheetDBUrl = "https://sheetdb.io/api/v1/v0dkeltmmocj1";
+
+    // Fonction pour envoyer les données à SheetDB
+    async function sendData(total, visitors, revisitors) {
+        const data = { Total: total, visitors: visitors, revisitors: revisitors };
+        await fetch(sheetDBUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data }),
+        });
+    }
+
+    // Gestion des visiteurs et revisiteurs via localStorage
+    let totalVisitors = parseInt(localStorage.getItem("totalVisitors")) || 0;
+    let revisitors = parseInt(localStorage.getItem("revisitors")) || 0;
+
+    if (localStorage.getItem("isReturningVisitor")) {
+        revisitors++;
+    } else {
+        localStorage.setItem("isReturningVisitor", "true");
+    }
+
+    totalVisitors++;
+    localStorage.setItem("totalVisitors", totalVisitors);
+    localStorage.setItem("revisitors", revisitors);
+
+    // Envoi des données à SheetDB
+    sendData(totalVisitors, totalVisitors - revisitors, revisitors);
+</script>
+<script>
+    // URL pour envoyer les données à SheetDB
+    const sheetDBUrl = "https://sheetdb.io/api/v1/v0dkeltmmocj1";
+
+    // Fonction pour envoyer les données à SheetDB
+    async function sendData(total, visitors, revisitors) {
+        const data = { 
+            Total: total, 
+            visitors: visitors, 
+            revisitors: revisitors 
+        };
+        try {
+            await fetch(sheetDBUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ data }),
+            });
+        } catch (error) {
+            console.error("Erreur lors de l'envoi des données à SheetDB :", error);
+        }
+    }
+
+    // Gestion des visiteurs et revisiteurs via localStorage
+    let totalVisitors = parseInt(localStorage.getItem("totalVisitors")) || 0;
+    let revisitors = parseInt(localStorage.getItem("revisitors")) || 0;
+    let uniqueVisitors = totalVisitors - revisitors;
+
+    // Vérifie si c'est un revisiteur
+    if (localStorage.getItem("isReturningVisitor")) {
+        revisitors++;
+    } else {
+        // Nouveau visiteur
+        uniqueVisitors++;
+        localStorage.setItem("isReturningVisitor", "true");
+    }
+
+    // Met à jour le nombre total de visiteurs
+    totalVisitors++;
+    localStorage.setItem("totalVisitors", totalVisitors);
+    localStorage.setItem("revisitors", revisitors);
+
+    // Affiche les informations dans la console pour débogage
+    console.log("Total Visitors:", totalVisitors);
+    console.log("Unique Visitors:", uniqueVisitors);
+    console.log("Revisitors:", revisitors);
+
+    // Envoi des données à SheetDB
+    sendData(totalVisitors, uniqueVisitors, revisitors);
+</script>
+
+    
+</body>
+</html>
