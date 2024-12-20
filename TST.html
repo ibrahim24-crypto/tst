@@ -114,7 +114,7 @@
 <body>
 
     <div class="header">
-        <h1>Bienvenue!</h1>
+        <h1>Bienveue!</h1>
         <button class="menu-btn" onclick="openMenu()">☰</button>
     </div>
 
@@ -259,23 +259,30 @@
 
     // Fonction pour envoyer les données à SheetDB
     async function sendData(total, visitors, revisitors) {
-        const data = { 
-            Total: total, 
-            visitors: visitors, 
-            revisitors: revisitors 
-        };
-        try {
-            await fetch(sheetDBUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ data }),
-            });
-        } catch (error) {
-            console.error("Erreur lors de l'envoi des données à SheetDB :", error);
+    const data = { 
+        Total: total || 0, 
+        visitors: visitors || 0, 
+        revisitors: revisitors || 0 
+    };
+    console.log("Données envoyées à SheetDB :", data);
+
+    try {
+        const response = await fetch(sheetDBUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP : ${response.status}`);
         }
+        console.log("Données envoyées avec succès !");
+    } catch (error) {
+        console.error("Erreur lors de l'envoi des données à SheetDB :", error);
     }
+}
 
     // Gestion des visiteurs et revisiteurs via localStorage
     let totalVisitors = parseInt(localStorage.getItem("totalVisitors")) || 0;
